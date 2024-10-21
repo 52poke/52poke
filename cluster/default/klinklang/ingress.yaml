@@ -26,3 +26,28 @@ spec:
     - s1.52poke.wiki
     - util.52poke.wiki
     secretName: 52poke-wiki-tls
+---
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      cert-manager.io/cluster-issuer: le-cloudflare-issuer
+      kubernetes.io/ingress.class: nginx
+    name: klinklang-52poke
+    namespace: default
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: util.52poke.com
+      http:
+        paths:
+        - backend:
+            service:
+              name: klinklang
+              port:
+                number: 3000
+          pathType: ImplementationSpecific
+    tls:
+    - hosts:
+      - util.52poke.com
+      secretName: klinklang-tls
