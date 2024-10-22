@@ -16,7 +16,7 @@ spec:
   values:
     installCRDs: true
     extraArgs:
-    - "--dns01-recursive-nameservers=162.159.27.72:53,8.8.8.8:53"
+    - "--dns01-recursive-nameservers=8.8.8.8:53"
     nodeSelector:
       lke.linode.com/pool-id: "125654"
     webhook:
