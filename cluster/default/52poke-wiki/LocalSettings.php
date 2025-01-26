@@ -533,3 +533,6 @@ wfLoadExtension( 'UniversalLanguageSelector' );
 wfLoadExtension( 'CodeMirror' );
 $wgDefaultUserOptions['usecodemirror'] = 1;
 $wgCodeMirrorLineNumberingNamespaces = [ NS_TEMPLATE, NS_MEDIAWIKI ];
+
+# Math Extension
+wfLoadExtension( 'Math' );
