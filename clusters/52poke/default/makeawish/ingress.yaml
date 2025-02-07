@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: makeawish
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: makeawish.52poke.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: makeawish
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.net
+    - "*.52poke.net"
+    secretName: 52poke-net-tls

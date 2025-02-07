@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: makeawish
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: makeawish
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: makeawish
+    spec:
+      enableServiceLinks: false
+      containers:
+      - env:
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              key: appKey
+              name: makeawish
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: mysql-makeawish
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: mysql-makeawish
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: accessKeyID
+              name: linode-object-storage
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secretAccessKey
+              name: linode-object-storage
+        image: ghcr.io/mudkipme/makeawish:latest
+        imagePullPolicy: Always
+        name: makeawish
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /var/www/html/.env
+          name: makeawish-config
+          readOnly: true
+          subPath: .env
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: makeawish
+        name: makeawish-config
