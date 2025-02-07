@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   ttlSecondsAfterFinished: 180
-  #suspend: true
+  suspend: true
   template:
     spec:
       containers:
