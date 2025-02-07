@@ -1,0 +1,70 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-init
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 180
+  #suspend: true
+  template:
+    spec:
+      containers:
+      - name: database-provision
+        image: ghcr.io/opentofu/opentofu:1.9
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          mkdir -p /tmp/database-init
+          cd /tmp/database-init
+          cp -r /mnt/opentofu-database/. .
+          tofu init
+          tofu apply -auto-approve
+        volumeMounts:
+        - name: opentofu-database
+          mountPath: /mnt/opentofu-database
+        env:
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: password
+        - name: KUBE_NAMESPACE
+          value: opentofu
+        - name: TF_VAR_mysql_wiki_password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-wiki
+              key: password
+        - name: TF_VAR_mysql_www_password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-www
+              key: password
+        - name: TF_VAR_mysql_makeawish_password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-makeawish
+              key: password
+        - name: TF_VAR_postgres_password
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+        - name: TF_VAR_postgres_klinklang_password
+          valueFrom:
+            secretKeyRef:
+              name: postgres-klinklang
+              key: password
+      restartPolicy: Never
+      serviceAccountName: opentofu
+      volumes:
+      - name: opentofu-database
+        configMap:
+          name: opentofu-database

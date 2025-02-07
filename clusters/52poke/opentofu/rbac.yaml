@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: opentofu
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: opentofu
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - update
+  - create
+  - list
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - update
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: opentofu
+  namespace: opentofu
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: opentofu
+subjects:
+- kind: ServiceAccount
+  name: opentofu
+  namespace: default
