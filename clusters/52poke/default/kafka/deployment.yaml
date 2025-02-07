@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-kraft
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: kafka-kraft
+  template:
+    metadata:
+      labels:
+        app: kafka-kraft
+    spec:
+      containers:
+      - name: kafka
+        image: bitnami/kafka:3.3.1
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        ports:
+        - containerPort: 9092
+        volumeMounts:
+        - mountPath: /bitnami/kafka
+          name: kafka-persistent-storage
+          subPath: data
+        env:
+        - name: KAFKA_HEAP_OPTS
+          value: -Xmx256m -Xms256m
+        - name: KAFKA_ENABLE_KRAFT
+          value: yes
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: broker,controller
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: CONTROLLER
+        - name: KAFKA_CFG_LISTENERS
+          value: PLAINTEXT://:9092,CONTROLLER://:9093
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+        - name: KAFKA_CFG_BROKER_ID
+          value: "1"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "1@127.0.0.1:9093"
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: PLAINTEXT://kafka-inside.default.svc.cluster.local:9092
+        - name: KAFKA_CFG_LOG_RETENTION_HOURS
+          value: "24"
+      volumes:
+        - name: kafka-persistent-storage
+          persistentVolumeClaim:
+            claimName: kafka-kraft-pvc
+      securityContext:
+        fsGroup: 1001
+  strategy:
+    type: Recreate

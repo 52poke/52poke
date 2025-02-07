@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: default
+spec:
+  ports:
+  - name: es
+    port: 9200
+    targetPort: 9200
+  - name: es-control
+    port: 9300
+    targetPort: 9300
+  selector:
+    app: elasticsearch
