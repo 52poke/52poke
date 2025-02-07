@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memcached
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: memcached
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: memcached
+    spec:
+      containers:
+      - image: memcached:1.6
+        imagePullPolicy: Always
+        name: memcached
+        ports:
+        - containerPort: 11211
+          name: memcached
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            cpu: 100m
+            memory: 256Mi
+      restartPolicy: Always

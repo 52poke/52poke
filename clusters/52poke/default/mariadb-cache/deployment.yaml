@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-cache
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mariadb-cache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mariadb-cache
+    spec:
+      containers:
+      - name: mariadb-cache
+        image: mariadb:11.4
+        args:
+          - "--default-authentication-plugin=mysql_native_password"
+          - "--character-set-server=utf8"
+          - "--collation-server=utf8_general_ci"
+          - "--skip-log-bin"
+        resources:
+          limits:
+            memory: "768Mi"
+            cpu: "1"
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mariadb-cache-persistant-storage
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: password
+      volumes:
+      - name: mariadb-cache-persistant-storage
+        persistentVolumeClaim:
+          claimName: mariadb-cache-pvc

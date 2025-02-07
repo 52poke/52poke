@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcached
+  namespace: default
+spec:
+  ports:
+  - port: 11211
+    targetPort: 11211
+  selector:
+    app: memcached
+  type: ClusterIP
