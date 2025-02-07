@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-media
+  namespace: default
+spec:
+  #suspend: true
+  #ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - rclone sync --exclude wiki/thumb/** --exclude wiki/temp/** --exclude webp-cache/** los:media.52poke.com hos:media-52poke-com
+        env:
+        - name: RCLONE_CONFIG_HOS_TYPE
+          value: s3
+        - name: RCLONE_CONFIG_HOS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: accessKeyID
+              name: hetzner-object-storage
+        - name: RCLONE_CONFIG_HOS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secretAccessKey
+              name: hetzner-object-storage
+        - name: RCLONE_CONFIG_HOS_ENDPOINT
+          value: hel1.your-objectstorage.com
+        - name: RCLONE_CONFIG_LOS_TYPE
+          value: s3
+        - name: RCLONE_CONFIG_LOS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: accessKeyID
+              name: linode-object-storage
+        - name: RCLONE_CONFIG_LOS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secretAccessKey
+              name: linode-object-storage
+        - name: RCLONE_CONFIG_LOS_ENDPOINT
+          value: jp-osa-1.linodeobjects.com
+        image: rclone/rclone:latest
+        imagePullPolicy: Always
+        name: migrate-media
+      restartPolicy: Never
