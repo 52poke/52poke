@@ -1,0 +1,10 @@
+secrets.tfvars
+secrets.auto.tfvars
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+.kubeconfig
+dev.log
+.vscode
+.terraform.lock.hcl
+.decrypted~*
