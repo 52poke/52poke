@@ -1,0 +1,30 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: 52poke
+  namespace: default
+spec:
+  secretName: 52poke-tls
+  issuerRef:
+    name: le-cloudflare-issuer
+    kind: ClusterIssuer
+  commonName: "*.52poke.com"
+  dnsNames:
+    - "*.52poke.com"
+    - "52poke.com"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: 52poke-net
+  namespace: default
+spec:
+  secretName: 52poke-net-tls
+  issuerRef:
+    name: le-cloudflare-issuer
+    kind: ClusterIssuer
+  commonName: "*.52poke.net"
+  dnsNames:
+    - "*.52poke.net"
+    - "52poke.net"

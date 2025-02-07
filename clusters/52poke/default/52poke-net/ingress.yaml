@@ -1,0 +1,49 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/temporal-redirect: https://52poke.com
+  name: 52poke-net
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 52poke.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: www-52poke
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.net
+    - "*.52poke.net"
+    secretName: 52poke-net-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: https://pub.52poke.net/.well-known/$1
+  name: activitypub-rewrite
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 52poke.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: www-52poke
+            port:
+              number: 80
+        path: /.well-known/(webfinger|nodeinfo|host-meta)$
+        pathType: ImplementationSpecific
