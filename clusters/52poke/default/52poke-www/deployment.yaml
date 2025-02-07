@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 52poke-www
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: 52poke-www
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: 52poke-www
+    spec:
+      containers:
+      - env:
+        - name: WORDPRESS_DB_NAME
+          value: 52poke
+        - name: WORDPRESS_DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: mysql-www
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: mysql-www
+        image: wordpress:php7.4-fpm
+        name: wordpress
+        ports:
+        - containerPort: 9000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: 52poke-www-persistent-storage
+        - mountPath: /usr/local/etc/php/conf.d/php-custom.ini
+          name: 52poke-www-config
+          subPath: php-custom.ini
+      - image: nginx:1.26
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 500m
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: 52poke-www-persistent-storage
+        - mountPath: /etc/nginx/nginx.conf
+          name: 52poke-www-config
+          subPath: nginx.conf
+      securityContext:
+        fsGroup: 33
+      volumes:
+      - name: 52poke-www-persistent-storage
+        persistentVolumeClaim:
+          claimName: pvc-52poke-www
+      - configMap:
+          name: 52poke-www-config
+        name: 52poke-www-config

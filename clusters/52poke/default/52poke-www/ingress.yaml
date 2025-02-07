@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: le-cloudflare-issuer
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 16m
+  name: 52poke-www
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 52poke.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: www-52poke
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.com
+    - "*.52poke.com"
+    secretName: 52poke-tls
