@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 52poke-wiki
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: 52poke-wiki
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: 52poke-wiki
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - 52poke-wiki
+                - 52poke-wiki-privileged
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - image: ghcr.io/52poke/mediawiki:latest
+        imagePullPolicy: Always
+        name: 52poke-wiki
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 1500m
+            memory: 384Mi
+          limits:
+            cpu: 3000m
+            memory: 1.5Gi
+        volumeMounts:
+        - mountPath: /home/52poke/wiki/LocalSettings.php
+          name: 52poke-wiki-config
+          readOnly: true
+          subPath: LocalSettings.php
+        - mountPath: /run/secrets/52w-db-user
+          name: mysql-user
+          readOnly: true
+          subPath: username
+        - mountPath: /run/secrets/52w-db-password
+          name: mysql-user
+          readOnly: true
+          subPath: password
+        - mountPath: /run/secrets/52w-secret-key
+          name: 52poke-wiki-secret
+          readOnly: true
+          subPath: secretKey
+        - mountPath: /run/secrets/52w-upgrade-key
+          name: 52poke-wiki-secret
+          readOnly: true
+          subPath: upgradeKey
+        - mountPath: /run/secrets/aws-s3-ak
+          name: aws-s3
+          readOnly: true
+          subPath: accessKeyID
+        - mountPath: /run/secrets/aws-s3-sk
+          name: aws-s3
+          readOnly: true
+          subPath: secretAccessKey
+        - mountPath: /run/secrets/aws-smtp-ak
+          name: aws-ses
+          readOnly: true
+          subPath: accessKeyID
+        - mountPath: /run/secrets/aws-smtp-sk
+          name: aws-ses
+          readOnly: true
+          subPath: secretAccessKey
+        - mountPath: /run/secrets/recaptcha-site-key
+          name: recaptcha
+          readOnly: true
+          subPath: siteKey
+        - mountPath: /run/secrets/recaptcha-secret-key
+          name: recaptcha
+          readOnly: true
+          subPath: secretKey
+        - mountPath: /run/secrets/oauth2
+          name: 52poke-wiki-oauth2
+          readOnly: true
+      - image: ghcr.io/52poke/poolcounter:latest
+        imagePullPolicy: Always
+        name: poolcounter
+        ports:
+        - containerPort: 7531
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 128Mi
+      volumes:
+      - configMap:
+          name: 52poke-wiki-1-43
+        name: 52poke-wiki-config
+      - name: mysql-user
+        secret:
+          secretName: mysql-wiki
+      - name: 52poke-wiki-secret
+        secret:
+          secretName: 52poke-wiki
+      - name: 52poke-wiki-oauth2
+        secret:
+          secretName: 52poke-wiki-oauth2
+      - name: aws-s3
+        secret:
+          secretName: linode-object-storage
+      - name: aws-ses
+        secret:
+          secretName: aws-ses
+      - name: recaptcha
+        secret:
+          secretName: recaptcha

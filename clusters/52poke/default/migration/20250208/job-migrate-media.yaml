@@ -4,8 +4,8 @@ metadata:
   name: migrate-media
   namespace: default
 spec:
-  #suspend: true
-  #ttlSecondsAfterFinished: 100
+  suspend: true
+  ttlSecondsAfterFinished: 100
   template:
     spec:
       containers:

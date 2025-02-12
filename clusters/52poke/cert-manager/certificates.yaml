@@ -28,3 +28,18 @@ spec:
   dnsNames:
     - "*.52poke.net"
     - "52poke.net"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: 52poke-wiki
+  namespace: default
+spec:
+  secretName: 52poke-wiki-tls
+  issuerRef:
+    name: le-cloudflare-issuer
+    kind: ClusterIssuer
+  commonName: "*.52poke.wiki"
+  dnsNames:
+    - "*.52poke.wiki"
+    - "52poke.wiki"

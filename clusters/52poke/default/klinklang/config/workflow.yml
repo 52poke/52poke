@@ -1,0 +1,622 @@
+---
+name: Update Ability term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 特性列表
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 特性列表
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .eplist tr
+    idSelector:
+      mode: rawValue
+      value: td:first-of-type
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(2)
+        ja: td[lang="ja"]
+        en: td[lang="en"]
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: ability
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Pokémon term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 宝可梦列表（按全国图鉴编号）/简单版
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 宝可梦列表（按全国图鉴编号）/简单版
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .eplist tr:has(> td:nth-child(4))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(2)
+        ja: td:nth-child(3)
+        en: td:nth-child(4)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: pokemon
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Site CSS
+isPrivate: false
+enabled: true
+user: MudkipRadar
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 神奇宝贝百科:层叠样式表
+actions:
+- actionType: GET_TEXT
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 神奇宝贝百科:层叠样式表
+- actionType: REGEXP_MATCH
+  inputBuilder:
+    pattern:
+      mode: rawValue
+      value: <pre>([\s\S]*)<\/pre>
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+  outputContext: scss
+- actionType: SCSS_COMPILE
+  inputBuilder:
+    scss:
+      mode: jsonPath
+      jsonPath: $.scss.matches[1]
+    variables:
+      mode: rawValue
+      value:
+        pageName: Common.css
+- actionType: EDIT_WIKI
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: MediaWiki:Common.css
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.css
+- actionType: SCSS_COMPILE
+  inputBuilder:
+    scss:
+      mode: jsonPath
+      jsonPath: $.scss.matches[1]
+    variables:
+      mode: rawValue
+      value:
+        pageName: Mobile.css
+- actionType: EDIT_WIKI
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: MediaWiki:Mobile.css
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.css
+---
+name: Update Move term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 招式列表
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 招式列表
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .hvlist tr:has(> td:nth-child(4))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(2)
+        ja: td[lang="ja"]
+        en: td:nth-child(4)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: move
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Item term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 道具列表
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 道具列表
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .hvlist tr:has(> td:nth-child(4))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(2)
+        ja: td:nth-child(3)
+        en: td:nth-child(4)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: item
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Location term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 地点列表
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 地点列表
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .eplist tr:has(> td:nth-child(3))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(1)
+        ja: td:nth-child(2)
+        en: td:nth-child(3)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: location
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Nature term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 性格
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 性格
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: table.sortable tr:has(> td:nth-child(3))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(1)
+        ja: td[lang="ja"]
+        en: td:nth-child(3)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: nature
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Trainer Class term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 训练家类型
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 训练家类型
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .eplist tr:has(> td:nth-child(3))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(1) a
+        ja: td:nth-child(2)
+        en: td:nth-child(3)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: trainer-class
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Warrior term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 武将
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 武将
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: table tr:has(> td[lang="ja"])
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(1)
+        ja: td[lang="ja"]
+        en: td:nth-child(3)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: warrior
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Update Character term list
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: test
+    path: /page_title
+    value: 人物列表
+actions:
+- actionType: GET_HTML
+  inputBuilder:
+    title:
+      mode: rawValue
+      value: 人物列表
+    variants:
+      mode: rawValue
+      value:
+      - zh-hant
+      - zh-hans
+- actionType: PARSE_TERMINOLOGY_LIST
+  inputBuilder:
+    text:
+      mode: jsonPath
+      jsonPath: $.payload.text
+    variants:
+      mode: jsonPath
+      jsonPath: $.payload.variants
+    entrySelector:
+      mode: rawValue
+      value: .eplist tr:has(> td:nth-child(3))
+    langSelectorMap:
+      mode: rawValue
+      value:
+        zh: td:nth-child(1) a
+        ja: td:nth-child(2)
+        en: td:nth-child(3)
+- actionType: UPDATE_TERMINOLOGY
+  inputBuilder:
+    category:
+      mode: rawValue
+      value: character
+    list:
+      mode: jsonPath
+      jsonPath: $.payload
+---
+name: Recent change to Discord
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: not
+    apply:
+    - op: test
+      path: /performer/user_is_bot
+      value: true
+actions:
+- actionType: DISCORD_MESSAGE
+  inputBuilder:
+    channel:
+      mode: rawValue
+      value: "792599126511452212"
+    message:
+      embed:
+        url:
+          mode: jsonPath
+          jsonPath: $.payload.meta.uri
+        title:
+          mode: jsonPath
+          jsonPath: $.payload.page_title
+        description:
+          mode: template
+          template: "{{stripHTML payload.parsedcomment}}"
+        fields:
+        - name:
+            mode: rawValue
+            value: "By"
+          value:
+            mode: template
+            template: "{{payload.performer.user_text}}"
+        - name:
+            mode: rawValue
+            value: "Actions"
+          value:
+            mode: template
+            template: "[Show diff](https://{{payload.meta.domain}}/index.php?title={{encodeURIComponent payload.page_title}}&diff={{payload.rev_id}}&oldid={{payload.rev_parent_id}})"
+---
+name: Clear cache after page editing
+isPrivate: false
+enabled: true
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+actions:
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh"
+  outputContext: response
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hans"
+  outputContext: response
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hant"
+  outputContext: response
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/zh/{{encodeURI payload.page_title}}"
+  outputContext: response
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/zh-hans/{{encodeURI payload.page_title}}"
+  outputContext: response
+- actionType: REQUEST
+  inputBuilder:
+    method:
+      mode: rawValue
+      value: "PURGE"
+    url:
+      mode: template
+      template: "http://nginx-52w/zh-hant/{{encodeURI payload.page_title}}"
+  outputContext: response
+---
+name: Recent change to Fedi
+isPrivate: true
+enabled: true
+user: MudkipRadar
+triggers:
+- type: TRIGGER_EVENTBUS
+  topic: mediawiki.revision-create
+  predicate:
+    op: and
+    apply:
+    - op: not
+      apply:
+      - op: test
+        path: /performer/user_is_bot
+        value: true
+    - op: test
+      path: /page_namespace
+      value: 0
+  throttle: 86400
+  throttleKeyPath: $.page_title
+actions:
+- actionType: FEDI_POST
+  inputBuilder:
+    subject:
+      mode: rawValue
+      value: "@rotom@pub.52poke.net"
+    status:
+      mode: template
+      template: "{{payload.page_title}} {{payload.meta.uri}}"

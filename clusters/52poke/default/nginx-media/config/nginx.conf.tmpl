@@ -1,0 +1,152 @@
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log  crit;
+load_module /usr/lib/nginx/modules/ngx_http_cache_purge_module.so;
+
+events {
+    worker_connections  4096;
+}
+
+worker_rlimit_nofile 8192;
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    set_real_ip_from 10.0.0.0/8;
+    resolver 8.8.8.8 ipv6=off valid=10s;
+    resolver_timeout 10s;
+
+    log_format rt_cache escape=json '{"timestamp": "$time_iso8601", "remote_addr": "$remote_addr", "vhost": "$host", "upstream_cache_status": "$upstream_cache_status", "bytes_sent": $body_bytes_sent, "status": $status, "request_proto": "$server_protocol", "path": "$uri",
+"request_query": "$args", "request_length": $request_length, "request_time": $request_time, "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}';
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    gzip  on;
+    gzip_proxied any;
+    gzip_types text/css application/x-javascript text/plain text/xml application/xml application/xhtml+xml text/vnd.wap.wml application/javascript application/json text/javascript image/svg+xml;
+
+    client_max_body_size 16M;
+
+    proxy_cache_path /var/cache/nginx/media levels=2:2 keys_zone=media:256m inactive=10d max_size=32768m;
+    proxy_temp_path /var/cache/nginx/proxy;
+
+    server {
+        listen   80;
+        access_log /var/log/nginx/access.log rt_cache;
+        server_name media.52poke.com assets.52poke.com static.52poke.com media.52poke.net s0.52poke.wiki;
+
+        valid_referers none blocked 52poke.com *.52poke.com 52poke.wiki *.52poke.wiki 52poke.net *.52poke.net;
+        if ($invalid_referer) {
+            return 403;
+        }
+        location / {
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods GET;
+            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com$request_uri;
+            proxy_set_header X-Real-IP '';
+            proxy_set_header X-Forwarded-For '';
+            proxy_redirect     off;
+            proxy_pass_header  Server;
+            proxy_cache        media;
+            proxy_cache_key    media.52poke.com$uri;
+            proxy_cache_valid  200 4w;
+            proxy_max_temp_file_size 8192m;
+            expires 4w;
+            proxy_cache_purge PURGE from 10.0.0.0/8;
+        }
+
+        location ~ ^/wiki/thumb/(archive/)?[0-9a-f]/[0-9a-f][0-9a-f]/([^/]+)/([0-9]+)px-.*$ {
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods GET;
+            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com$request_uri;
+            proxy_set_header X-Real-IP '';
+            proxy_set_header X-Forwarded-For '';
+            proxy_redirect     off;
+            proxy_pass_header  Server;
+            proxy_cache        media;
+            proxy_cache_key    media.52poke.com$uri;
+            proxy_cache_valid  200 4w;
+            proxy_max_temp_file_size 8192m;
+            proxy_intercept_errors on;
+            expires 4w;
+            error_page     404 502 504 403 = @thumb;
+            proxy_cache_purge PURGE from 10.0.0.0/8;
+        }
+
+        location @thumb {
+            internal;
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods GET;
+            proxy_pass         https://{{ .Env.MALASADA_API_ID }}.execute-api.ap-northeast-1.amazonaws.com$request_uri;
+            proxy_ssl_server_name on;
+            proxy_pass_header  Server;
+            proxy_cache        media;
+            proxy_cache_key    media.52poke.com$uri;
+            proxy_cache_valid  200 4w;
+            proxy_max_temp_file_size 8192m;
+            expires 4w;
+        }
+
+        location ~ ^/wiki/deleted/ {
+            deny all;
+        }
+    }
+
+    server {
+        listen 80;
+        access_log /var/log/nginx/access.log rt_cache;
+        server_name s1.52poke.wiki s1.52poke.com;
+
+        valid_referers none blocked 52poke.com *.52poke.com 52poke.wiki *.52poke.wiki 52poke.net *.52poke.net;
+        if ($invalid_referer) {
+            return 403;
+        }
+
+        location / {
+            proxy_redirect off;
+            proxy_set_header Host media.52poke.com;
+            proxy_pass http://127.0.0.1;
+        }
+
+        location ~ ^/wiki/thumb/(archive/)?[0-9a-f]/[0-9a-f][0-9a-f]/([^/]+)/([0-9]+)px-.*$ {
+            proxy_redirect off;
+            proxy_set_header Host media.52poke.com;
+            proxy_pass http://127.0.0.1;
+        }
+
+        location ~ \.(jpg|jpeg|png)$ {
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods GET;
+            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com/webp-cache$request_uri;
+            proxy_set_header X-Real-IP '';
+            proxy_set_header X-Forwarded-For '';
+            proxy_redirect     off;
+            proxy_pass_header  Server;
+            proxy_intercept_errors on;
+            proxy_cache        media;
+            proxy_cache_key    media.52poke.com/webp-cache$uri;
+            proxy_cache_valid  200 4w;
+            expires 4w;
+            error_page     404 502 504 403 = @webp;
+            break;
+        }
+
+        location @webp {
+            internal;
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods GET;
+            proxy_pass https://{{ .Env.MALASADA_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/webp$request_uri;
+            proxy_ssl_server_name on;
+            proxy_pass_header  Server;
+            proxy_cache        media;
+            proxy_cache_key    media.52poke.com/webp-cache$uri;
+            proxy_cache_valid  200 4w;
+            expires 4w;
+        }
+
+        location ~ ^/wiki/deleted/ {
+            deny all;
+        }
+    }
+}

@@ -1,0 +1,138 @@
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log  crit;
+load_module /usr/lib/nginx/modules/ngx_http_cache_purge_module.so;
+
+events {
+    worker_connections  32768;
+}
+
+worker_rlimit_nofile 65535;
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    set_real_ip_from 10.0.0.0/8;
+    resolver 10.128.0.10 ipv6=off valid=10s;
+    resolver_timeout 10s;
+
+    log_format rt_cache escape=json '{"timestamp": "$time_iso8601", "remote_addr": "$remote_addr", "vhost": "$host", "upstream_cache_status": "$upstream_cache_status", "bytes_sent": $body_bytes_sent, "status": $status, "request_proto": "$server_protocol", "path": "$uri",
+"request_query": "$args", "request_length": $request_length, "request_time": $request_time, "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}';
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    gzip  on;
+    gzip_proxied any;
+    gzip_types text/css application/x-javascript text/plain text/xml application/xml application/xhtml+xml text/vnd.wap.wml application/javascript application/json text/javascript image/svg+xml;
+
+    client_max_body_size 16M;
+
+    proxy_cache_path /var/cache/nginx/wiki levels=2:2 keys_zone=wiki:256m inactive=96h max_size=18432m;
+    proxy_temp_path /var/cache/nginx/proxy;
+
+    map $http_accept_language $lang {
+        default zh;
+        ~*zh-(hans|cn|sg|my).*zh-(hant|tw|hk|mo) zh;
+        ~*zh-(hant|tw|hk|mo).*zh-(hans|cn|sg|my) zh;
+        ~*zh-(hant|tw|hk|mo) zh-hant;
+        ~*zh-(hans|cn|sg|my) zh-hans;
+    }
+
+    server {
+        listen 80;
+        server_name wiki.52poke.com default;
+        access_log /var/log/nginx/access.log rt_cache;
+        set $upstream_52poke_wiki wiki-52poke.default.svc.cluster.local;
+{{ range (ds "block").ban_ua }}
+        if ($http_user_agent = "{{.}}") {
+            return 403;
+        }
+{{ end }}
+{{ range (ds "block").ban_ua_match }}
+        if ($http_user_agent ~* "{{.}}") {
+            return 403;
+        }
+{{ end }}
+{{ range (ds "block").ban_uri }}
+        if ($request_uri ~* "{{.}}") {
+            return 403;
+        }
+{{ end }}
+{{ range (ds "block").ban_referer }}
+        if ($http_referer = "{{.}}") {
+            return 403;
+        }
+{{ end }}
+        location / {
+            set $do_not_cache "";
+            if ($http_cookie ~* "52poke_wikiUserID") {
+                set $do_not_cache 1;
+                set $upstream_52poke_wiki wiki-52poke-privileged.default.svc.cluster.local;
+            }
+            if ($uri ~ "^/wiki/Special:") {
+                set $do_not_cache 1;
+            }
+            if ($uri ~ "api.php") {
+                set $do_not_cache 1;
+            }
+            if ($uri ~ "rest.php") {
+                set $do_not_cache 1;
+            }
+            if ($args ~ "Special") {
+                set $do_not_cache 1;
+            }
+            if ($http_authorization ~* "oauth") {
+                set $do_not_cache 1;
+            }
+            if ($uri ~ "^/zh/") {
+                set $lang "";
+            }
+            if ($uri ~ "^/zh-hans/") {
+                set $lang "";
+            }
+            if ($uri ~ "^/zh-hant/") {
+                set $lang "";
+            }
+            if ($uri ~ "^/load\.php") {
+                set $lang "";
+            }
+            if ($args ~ "&(zh|zh-hans|zh-hant)$") {
+                set $lang "";
+            }
+            if ($request_method = "PURGE") {
+                set $lang "";
+            }
+            if ($args ~ "oldid=") {
+                set $require_login "${do_not_cache}2";
+            }
+            if ($uri ~ "^/$") {
+                return 302 "/wiki/%E4%B8%BB%E9%A1%B5";
+            }
+            if ($require_login = "2") {
+                return 302 "/index.php?title=Special:UserLogin";
+            }
+
+            proxy_redirect off;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+            proxy_pass http://$upstream_52poke_wiki;
+            proxy_set_header Accept-Language $lang;
+            proxy_set_header User-Agent "";
+            proxy_cache wiki;
+            proxy_ignore_headers Cache-Control Expires Vary;
+            proxy_cache_key $uri$is_args$args$lang;
+            proxy_cache_bypass $do_not_cache;
+            proxy_no_cache $do_not_cache;
+            proxy_max_temp_file_size 128m;
+            proxy_cache_valid 200 96h;
+            proxy_cache_valid 301 96h;
+            proxy_cache_valid 302 0;
+            proxy_cache_valid 404 20m;
+            proxy_cache_purge PURGE from 10.0.0.0/8;
+            proxy_read_timeout 20s;
+        }
+    }
+}

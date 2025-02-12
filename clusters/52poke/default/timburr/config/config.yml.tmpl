@@ -1,0 +1,75 @@
+kafka:
+  brokerList: "kafka-inside:9092"
+
+options:
+  groupIDPrefix: timburr-
+  metadataWatchGroupID: timburr-watcher
+  metadataWatchRefreshInterval: 10000
+  listen: 0.0.0.0:5001
+  topicKey: meta.stream
+  defaultTopic: wiki-52poke
+
+jobRunner:
+  endpoint: http://wiki-52poke-privileged/rest.php/eventbus/v0/internal/job/execute
+  excludeFields: ["host", "headers", "@timestamp", "@version"]
+
+purge:
+  expiry: 86400000
+  cfZoneID: {{ .Env.CF_ZONE_ID }}
+  entries:
+  - host: wiki.52poke.com
+    method: PURGE
+    variants:
+    - zh
+    - zh-hans
+    - zh-hant
+    uris:
+    #- "http://nginx-52w#url##variants#"
+    #- "http://nginx-52w#url##variants#mobile"
+    headers:
+      host: wiki.52poke.com
+  - host: media.52poke.com
+    method: PURGE
+    uris:
+    - "http://nginx-media#url#"
+    - "http://nginx-media/webp-cache#url#"
+    headers:
+      host: media.52poke.com
+  - host: media.52poke.com
+    method: DELETE
+    uris:
+    - "https://{{ .Env.MALASADA_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/webp#url#"
+  - host: media.52poke.com
+    method: Cloudflare
+    uris:
+    - "https://media.52poke.com#url#"
+    - "https://s1.52poke.com#url#"
+
+rules:
+- name: basic
+  topic: /^mediawiki\.job\./
+  excludeTopics:
+  - mediawiki.job.AssembleUploadChunks
+  - mediawiki.job.PublishStashedFile
+  - mediawiki.job.uploadFromUrl
+  - mediawiki.job.cirrusSearchLinksUpdate
+  - mediawiki.job.htmlCacheUpdate
+  - mediawiki.job.refreshLinks
+
+- name: low-priority
+  topics:
+  - mediawiki.job.cirrusSearchLinksUpdate
+  - mediawiki.job.htmlCacheUpdate
+  - mediawiki.job.refreshLinks
+
+- name: upload
+  topics:
+  - mediawiki.job.AssembleUploadChunks
+  - mediawiki.job.PublishStashedFile
+  - mediawiki.job.uploadFromUrl
+
+- name: purge
+  topic: cdn-url-purges
+  taskType: purge
+  rateLimit: 5
+  rateInterval: 1000

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-52w
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: nginx-52w
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nginx-52w
+    spec:
+      initContainers:
+      - name: generate-config
+        image: hairyhenderson/gomplate:alpine
+        command:
+        - /bin/sh
+        - -c
+        - |
+          gomplate -d block=/config/block.yaml < /templates/nginx.conf.tmpl > /etc/nginx/nginx.conf
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx
+        - name: nginx-52w-config
+          mountPath: /templates
+        - name: nginx-52w-secret
+          mountPath: /config
+      containers:
+      - image: ghcr.io/52poke/52w-nginx:latest
+        imagePullPolicy: Always
+        name: nginx-52w
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: config-volume
+          subPath: nginx.conf
+        - mountPath: /var/cache/nginx
+          name: nginx-52w-persistent-storage
+      volumes:
+      - name: config-volume
+        emptyDir: {}
+      - name: nginx-52w-config
+        configMap:
+          name: nginx-52w
+      - name: nginx-52w-secret
+        secret:
+          secretName: nginx-52w
+      - name: nginx-52w-persistent-storage
+        persistentVolumeClaim:
+          claimName: nginx-52w-pvc

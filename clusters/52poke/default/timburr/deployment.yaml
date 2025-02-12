@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timburr
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: timburr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: timburr
+    spec:
+      initContainers:
+      - name: generate-config
+        image: hairyhenderson/gomplate:alpine
+        command:
+        - /bin/sh
+        - -c
+        - |
+          gomplate < /templates/config.yml.tmpl > /app/conf/config.yml
+        env:
+        - name: CF_ZONE_ID
+          valueFrom:
+            secretKeyRef:
+              key: cf_zone_id
+              name: cloudflare
+        - name: MALASADA_API_ID
+          valueFrom:
+            secretKeyRef:
+              key: malasada_api_id
+              name: aws-api-gateway
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/conf
+        - name: timburr-config
+          mountPath: /templates
+      containers:
+      - env:
+        - name: TIMBURR_PURGE_CFTOKEN
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: cloudflare
+        image: ghcr.io/mudkipme/timburr:latest
+        imagePullPolicy: Always
+        name: timburr
+        ports:
+        - containerPort: 5001
+          name: timburr
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/conf
+      restartPolicy: Always
+      volumes:
+      - name: timburr-config
+        configMap:
+          name: timburr
+      - name: config-volume
+        emptyDir: {}

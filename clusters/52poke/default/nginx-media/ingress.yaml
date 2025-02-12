@@ -1,0 +1,79 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+    nginx.ingress.kubernetes.io/server-alias: assets.52poke.com,static.52poke.com,s1.52poke.com
+  name: nginx-media
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: media.52poke.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-media
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.com
+    - "*.52poke.com"
+    secretName: 52poke-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+    nginx.ingress.kubernetes.io/server-alias: s1.52poke.wiki
+  name: nginx-media-wiki
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: s0.52poke.wiki
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-media
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.wiki
+    - "*.52poke.wiki"
+    secretName: 52poke-wiki-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+  name: nginx-media-net
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: media.52poke.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-media
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.net
+    - "*.52poke.net"
+    secretName: 52poke-net-tls

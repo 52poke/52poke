@@ -1,0 +1,15 @@
+{
+    "app": {
+        "url": "https://util.52poke.wiki"
+    },
+    "mediawiki": {
+        "scriptPath": "https://wiki.52poke.com/"
+    },
+    "kafka": {
+        "brokers": ["kafka-inside:9092"]
+    },
+    "redis": {
+        "host": "redis",
+        "port": 6379
+    }
+}

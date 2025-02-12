@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: klinklang
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: util.52poke.wiki
+    http:
+      paths:
+      - backend:
+          service:
+            name: klinklang
+            port:
+              number: 3000
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.wiki
+    - "*.52poke.wiki"
+    secretName: 52poke-wiki-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: klinklang-52poke
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: util.52poke.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: klinklang
+            port:
+              number: 3000
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.com
+    - "*.52poke.com"
+    secretName: 52poke-tls

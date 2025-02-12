@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 16m
+  name: nginx-52w
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: wiki.52poke.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-52w
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.com
+    - "*.52poke.com"
+    secretName: 52poke-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/server-alias: www.52poke.wiki
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: https://wiki.52poke.com/$1
+  name: nginx-52w-wiki
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 52poke.wiki
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-52w
+            port:
+              number: 80
+        path: /(.*)
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - 52poke.wiki
+    - "*.52poke.wiki"
+    secretName: 52poke-wiki-tls

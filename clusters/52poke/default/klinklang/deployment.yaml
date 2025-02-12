@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: klinklang
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: klinklang
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: klinklang
+    spec:
+      containers:
+      - command:
+        - npm
+        - run
+        - serve
+        env:
+        - name: KLINKLANG_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: secret
+              name: klinklang
+        - name: WIKI_OAUTH_KEY
+          valueFrom:
+            secretKeyRef:
+              key: wiki-oauth-key
+              name: klinklang
+        - name: WIKI_OAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: wiki-oauth-secret
+              name: klinklang
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              key: url
+              name: postgres-klinklang
+        - name: DISCORD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: 52poke-discord
+        image: ghcr.io/52poke/klinklang:latest
+        imagePullPolicy: Always
+        name: klinklang
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - mountPath: /app/config.json
+          name: klinklang-config
+          readOnly: true
+          subPath: config.json
+        - mountPath: /app/workflow.yml
+          name: klinklang-config
+          readOnly: true
+          subPath: workflow.yml
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: klinklang
+        name: klinklang-config
