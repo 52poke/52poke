@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wiki-restore
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 180
+  #suspend: true
+  template:
+    spec:
+      containers:
+      - name: wiki-restore
+        image: mariadb:11.4
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          apt-get update && apt-get install -y zip curl man-db
+          curl https://rclone.org/install.sh | bash
+
+          echo '[client]' > /root/.my.cnf
+          echo 'user=root' >> /root/.my.cnf
+          echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf
+
+          # Create objectcache table
+          mariadb -h mariadb-cache 52poke_wiki <<SQL
+          DROP TABLE IF EXISTS objectcache; \
+
+          CREATE TABLE objectcache (
+            keyname varbinary(255) NOT NULL default '' PRIMARY KEY,
+            value mediumblob,
+            exptime datetime
+          ) ENGINE=InnoDB, DEFAULT CHARSET=utf8;
+          CREATE INDEX exptime ON objectcache (exptime);
+          SQL
+
+          # Drop existing tables
+          echo "SET FOREIGN_KEY_CHECKS = 0;" $(mariadb-dump -h mariadb --add-drop-table --no-data 52poke_wiki | grep 'DROP TABLE') "SET FOREIGN_KEY_CHECKS = 1;" | mariadb -h mariadb 52poke_wiki
+
+          # Download and restore from backup
+          mkdir -p /tmp/mysql-restore
+          cd /tmp/mysql-restore
+          rclone copy b2:52poke-backup/database/52poke_wiki.sql.gz .
+          (echo "SET SESSION SQL_LOG_BIN=0;"; gzip -dc 52poke_wiki.sql.gz) | mariadb -h mariadb 52poke_wiki
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: password
+        - name: RCLONE_CONFIG_B2_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              name: backblaze-b2
+              key: b2-account-id
+        - name: RCLONE_CONFIG_B2_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backblaze-b2
+              key: b2-account-key
+        - name: RCLONE_CONFIG_B2_TYPE
+          value: b2
+      restartPolicy: Never
