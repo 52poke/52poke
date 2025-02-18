@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: mediawiki-update
+  name: elasticsearch-init
   namespace: default
 spec:
   suspend: true
@@ -16,9 +16,10 @@ spec:
         - "-c"
         - |
           set -e
-          echo '' > /home/52poke/wiki/extensions/Echo/sql/mysql/patch-echo_push_subscription-drop-foreign-keys_2.sql
-          cd /home/52poke/wiki/maintenance
-          php update.php
+          cd /home/52poke/wiki/extensions/CirrusSearch/maintenance
+          php UpdateSearchIndexConfig.php --reindexAndRemoveOk --indexIdentifier=now --ignoreIndexChanged
+          php ForceSearchIndex.php --skipLinks --indexOnSkip
+          php ForceSearchIndex.php --skipParse
         name: 52poke-wiki
         resources:
           requests:

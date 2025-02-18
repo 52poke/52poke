@@ -83,7 +83,7 @@ $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
 $wgEmailAuthentication = true;
 $wgSMTP = array(
-    'host' => 'tls://email-smtp.us-west-2.amazonaws.com',
+    'host' => 'email-smtp.us-west-2.amazonaws.com',
     'IDHost' => 'email-smtp.us-west-2.amazonaws.com',
     'port' => 587,
     'username' => file_get_contents("/run/secrets/aws-smtp-ak"),
@@ -215,6 +215,13 @@ $wgGroupPermissions['sysop']['createpage'] = true;
 $wgGroupPermissions['sysop']['editsitecss'] = true;
 $wgGroupPermissions['sysop']['editsitejs'] = true;
 $wgGroupPermissions['sysop']['editsitejson'] = true;
+$wgGroupPermissions['bureaucrat']['deletelogentry'] = true;
+$wgGroupPermissions['bureaucrat']['hideuser'] = true;
+$wgGroupPermissions['bureaucrat']['abusefilter-hide-log'] = true;
+$wgGroupPermissions['bureaucrat']['suppressrevision'] = true;
+$wgGroupPermissions['bureaucrat']['viewsuppressed'] = true;
+$wgGroupPermissions['bureaucrat']['abusefilter-hidden-log'] = true;
+$wgGroupPermissions['bureaucrat']['suppressionlog'] = true;
 $wgGroupPermissions['user']['upload'] = false;
 $wgGroupPermissions['user']['move'] = false;
 $wgGroupPermissions['user']['edit'] = true;
@@ -349,6 +356,9 @@ $wgHooks['LinkerMakeExternalImage'][] = function (&$url, &$alt, &$img) {
     return false;
 };
 $wgHooks['ThumbnailBeforeProduceHTML'][] = function ($thumb, &$attribs, &$linkAttribs) {
+    if (!str_contains($attribs['src'], 'wiki/thumb') && $thumb->getFile()->getHandler()->isAnimatedImage($thumb->getFile())) {
+        return true;
+    }
     $parsedUrl = \MediaWiki\MediaWikiServices::getInstance()->getUrlUtils()->parse( $attribs['src'] );
     $parsedUrl['host'] = 's1.52poke.com';
     $attribs['src'] = \MediaWiki\Utils\UrlUtils::assemble($parsedUrl);

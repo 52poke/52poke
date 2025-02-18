@@ -1,0 +1,99 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: 52poke-wiki-daily
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              cd /home/52poke/wiki/maintenance
+              php updateSpecialPages.php
+              php fixDoubleRedirects.php
+            image: ghcr.io/52poke/mediawiki:latest
+            imagePullPolicy: Always
+            name: 52poke-wiki
+            resources:
+              limits:
+                memory: 1Gi
+              requests:
+                cpu: 150m
+                memory: 128Mi
+            volumeMounts:
+            - mountPath: /home/52poke/wiki/LocalSettings.php
+              name: 52poke-wiki-config
+              readOnly: true
+              subPath: LocalSettings.php
+            - mountPath: /run/secrets/52w-db-user
+              name: mysql-user
+              readOnly: true
+              subPath: username
+            - mountPath: /run/secrets/52w-db-password
+              name: mysql-user
+              readOnly: true
+              subPath: password
+            - mountPath: /run/secrets/52w-secret-key
+              name: 52poke-wiki-secret
+              readOnly: true
+              subPath: secretKey
+            - mountPath: /run/secrets/52w-upgrade-key
+              name: 52poke-wiki-secret
+              readOnly: true
+              subPath: upgradeKey
+            - mountPath: /run/secrets/aws-s3-ak
+              name: aws-s3
+              readOnly: true
+              subPath: accessKeyID
+            - mountPath: /run/secrets/aws-s3-sk
+              name: aws-s3
+              readOnly: true
+              subPath: secretAccessKey
+            - mountPath: /run/secrets/aws-smtp-ak
+              name: aws-ses
+              readOnly: true
+              subPath: accessKeyID
+            - mountPath: /run/secrets/aws-smtp-sk
+              name: aws-ses
+              readOnly: true
+              subPath: secretAccessKey
+            - mountPath: /run/secrets/recaptcha-site-key
+              name: recaptcha
+              readOnly: true
+              subPath: siteKey
+            - mountPath: /run/secrets/recaptcha-secret-key
+              name: recaptcha
+              readOnly: true
+              subPath: secretKey
+          volumes:
+          - configMap:
+              name: 52poke-wiki-1-43
+            name: 52poke-wiki-config
+          - name: mysql-user
+            secret:
+              secretName: mysql-wiki
+          - name: 52poke-wiki-secret
+            secret:
+              secretName: 52poke-wiki
+          - name: aws-s3
+            secret:
+              secretName: linode-object-storage
+          - name: aws-ses
+            secret:
+              secretName: aws-ses
+          - name: recaptcha
+            secret:
+              secretName: recaptcha
+  schedule: 30 18 * * *
+  successfulJobsHistoryLimit: 1

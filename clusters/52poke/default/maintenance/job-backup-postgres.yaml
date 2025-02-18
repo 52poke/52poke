@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-postgres
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          containers:
+          - env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: RCLONE_CONFIG_B2_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-id
+                  name: backblaze-b2
+            - name: RCLONE_CONFIG_B2_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-key
+                  name: backblaze-b2
+            - name: RCLONE_CONFIG_B2_TYPE
+              value: b2
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: postgres
+            image: postgres:17
+            imagePullPolicy: Always
+            name: backup-postgres
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              apt-get update && apt-get install -y zip curl man-db
+              curl https://rclone.org/install.sh | bash
+              mkdir -p /root/backup/database/
+              pg_dumpall -c -h $POSTGRES_HOST -p $POSTGRES_PORT -U postgres | gzip > /root/backup/database/postgres_backup.gz
+              rclone copy /root/backup/database b2:52poke-backup/database
+          restartPolicy: OnFailure
+  schedule: 30 19 * * *
+  successfulJobsHistoryLimit: 1

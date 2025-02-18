@@ -13,7 +13,7 @@ http {
     include       mime.types;
     default_type  application/octet-stream;
     set_real_ip_from 10.0.0.0/8;
-    resolver 10.128.0.10 ipv6=off valid=10s;
+    resolver 10.43.0.10 ipv6=off valid=10s;
     resolver_timeout 10s;
 
     log_format rt_cache escape=json '{"timestamp": "$time_iso8601", "remote_addr": "$remote_addr", "vhost": "$host", "upstream_cache_status": "$upstream_cache_status", "bytes_sent": $body_bytes_sent, "status": $status, "request_proto": "$server_protocol", "path": "$uri",

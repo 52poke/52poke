@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-mysql
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - env:
+            - name: MYSQL_HOST
+              value: mariadb
+            - name: RCLONE_CONFIG_B2_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-id
+                  name: backblaze-b2
+            - name: RCLONE_CONFIG_B2_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-key
+                  name: backblaze-b2
+            - name: RCLONE_CONFIG_B2_TYPE
+              value: b2
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: mysql-root
+            image: mariadb:11.4
+            imagePullPolicy: Always
+            name: backup-mysql
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              apt-get update && apt-get install -y zip curl man-db
+              curl https://rclone.org/install.sh | bash
+
+              echo '[client]' > /root/.my.cnf
+              echo 'user=root' >> /root/.my.cnf
+              echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf
+              echo '[mysqldump]' >> /root/.my.cnf
+              echo 'user=root' >> /root/.my.cnf
+              echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf
+
+              mkdir -p /root/backup/database/
+              for db in 52poke 52poke_wiki makeawish; do
+                mariadb-dump --single-transaction -h $MYSQL_HOST -u root $db | gzip > /root/backup/database/$db.sql.gz
+              done
+              rclone copy /root/backup/database b2:52poke-backup/database
+  schedule: 0 20 * * *
+  successfulJobsHistoryLimit: 1

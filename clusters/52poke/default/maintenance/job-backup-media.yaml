@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-media
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          containers:
+          - command:
+            - /bin/sh
+            - -c
+            - rclone sync --exclude wiki/thumb/** --exclude wiki/temp/** --exclude
+              webp-cache/** media:media.52poke.com b2:52poke-backup/static/media
+            env:
+            - name: RCLONE_CONFIG_MEDIA_TYPE
+              value: s3
+            - name: RCLONE_CONFIG_MEDIA_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: accessKeyID
+                  name: linode-object-storage
+            - name: RCLONE_CONFIG_MEDIA_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secretAccessKey
+                  name: linode-object-storage
+            - name: RCLONE_CONFIG_MEDIA_ENDPOINT
+              value: jp-osa-1.linodeobjects.com
+            - name: RCLONE_CONFIG_B2_TYPE
+              value: b2
+            - name: RCLONE_CONFIG_B2_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-id
+                  name: backblaze-b2
+            - name: RCLONE_CONFIG_B2_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: b2-account-key
+                  name: backblaze-b2
+            image: rclone/rclone:latest
+            imagePullPolicy: Always
+            name: backup-media
+          restartPolicy: OnFailure
+  schedule: 0 21 * * 1
+  successfulJobsHistoryLimit: 1
