@@ -163,7 +163,7 @@ $wgDefaultSkin = 'vector-2022';
 $wgVectorMaxWidthOptions = [
     "exclude" => [
         "mainpage" => true,
-		"namespaces" => [ 0, 2, 4, 12, 100 ],
+        "namespaces" => [ 0, 2, 4, 12, 100 ],
         "querystring" => [
             "action" => "(history|edit)",
             "diff" => ".+",
@@ -346,7 +346,6 @@ $wgGroupPermissions['bureaucrat']['usermerge'] = true;
 
 # Lazyload
 $wgNativeImageLazyLoading = true;
-$wgResponsiveImages = false;
 $wgHooks['LinkerMakeExternalImage'][] = function (&$url, &$alt, &$img) {
     $parsedUrl = \MediaWiki\MediaWikiServices::getInstance()->getUrlUtils()->parse( $url );
     $parsedUrl['scheme'] = 'https';
@@ -362,6 +361,16 @@ $wgHooks['ThumbnailBeforeProduceHTML'][] = function ($thumb, &$attribs, &$linkAt
     $parsedUrl = \MediaWiki\MediaWikiServices::getInstance()->getUrlUtils()->parse( $attribs['src'] );
     $parsedUrl['host'] = 's1.52poke.com';
     $attribs['src'] = \MediaWiki\Utils\UrlUtils::assemble($parsedUrl);
+    if (isset($attribs['srcset'])) {
+        $attribs['data-loginonly-srcset'] = $attribs['srcset'];
+    }
+    unset($attribs['srcset']);
+    return true;
+};
+$wgHooks['OutputPageBeforeHTML'][] = function ($out, &$text) {
+    if ($out->getUser()->isRegistered()) {
+        $text = str_replace('data-loginonly-srcset="', 'srcset="', $text);
+    }
     return true;
 };
 
@@ -479,9 +488,9 @@ $wgCopyUploadsDomains = array();
 
 wfLoadExtension( 'AWS' );
 $wgAWSCredentials = [
-	'key'    => file_get_contents("/run/secrets/aws-s3-ak"),
-	'secret' => file_get_contents("/run/secrets/aws-s3-sk"),
-	'token'  => false
+    'key'    => file_get_contents("/run/secrets/aws-s3-ak"),
+    'secret' => file_get_contents("/run/secrets/aws-s3-sk"),
+    'token'  => false
 ];
 $wgAWSRegion = 'ap-northeast-1';
 
