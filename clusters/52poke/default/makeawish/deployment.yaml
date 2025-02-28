@@ -36,12 +36,12 @@ spec:
           valueFrom:
             secretKeyRef:
               key: accessKeyID
-              name: linode-object-storage
+              name: hetzner-object-storage
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               key: secretAccessKey
-              name: linode-object-storage
+              name: hetzner-object-storage
         image: ghcr.io/mudkipme/makeawish:latest
         imagePullPolicy: Always
         name: makeawish

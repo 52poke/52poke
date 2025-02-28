@@ -113,7 +113,7 @@ spec:
           secretName: 52poke-wiki-oauth2
       - name: aws-s3
         secret:
-          secretName: linode-object-storage
+          secretName: hetzner-object-storage
       - name: aws-ses
         secret:
           secretName: aws-ses
