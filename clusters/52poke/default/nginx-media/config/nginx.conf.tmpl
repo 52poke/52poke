@@ -78,7 +78,7 @@ http {
             internal;
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods GET;
-            proxy_pass         https://{{ .Env.MALASADA_API_ID }}.execute-api.ap-northeast-1.amazonaws.com$request_uri;
+            proxy_pass         https://{{ .Env.MALASADA_API_ID }}.execute-api.eu-central-1.amazonaws.com$request_uri;
             proxy_ssl_server_name on;
             proxy_pass_header  Server;
             proxy_cache        media;
@@ -136,7 +136,7 @@ http {
             internal;
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods GET;
-            proxy_pass https://{{ .Env.MALASADA_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/webp$request_uri;
+            proxy_pass https://{{ .Env.MALASADA_API_ID }}.execute-api.eu-central-1.amazonaws.com/webp$request_uri;
             proxy_ssl_server_name on;
             proxy_pass_header  Server;
             proxy_cache        media;
