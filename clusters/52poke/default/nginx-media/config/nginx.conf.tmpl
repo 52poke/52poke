@@ -43,7 +43,7 @@ http {
         location / {
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods GET;
-            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com$request_uri;
+            proxy_pass https://media-52poke-com.hel1.your-objectstorage.com$request_uri;
             proxy_set_header X-Real-IP '';
             proxy_set_header X-Forwarded-For '';
             proxy_redirect     off;
@@ -59,7 +59,7 @@ http {
         location ~ ^/wiki/thumb/(archive/)?[0-9a-f]/[0-9a-f][0-9a-f]/([^/]+)/([0-9]+)px-.*$ {
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods GET;
-            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com$request_uri;
+            proxy_pass https://media-52poke-com.hel1.your-objectstorage.com$request_uri;
             proxy_set_header X-Real-IP '';
             proxy_set_header X-Forwarded-For '';
             proxy_redirect     off;
@@ -118,7 +118,7 @@ http {
         location ~ \.(jpg|jpeg|png)$ {
             add_header Access-Control-Allow-Origin *;
             add_header Access-Control-Allow-Methods GET;
-            proxy_pass http://media.52poke.com.jp-osa-1.linodeobjects.com/webp-cache$request_uri;
+            proxy_pass https://media-52poke-com.hel1.your-objectstorage.com/webp-cache$request_uri;
             proxy_set_header X-Real-IP '';
             proxy_set_header X-Forwarded-For '';
             proxy_redirect     off;

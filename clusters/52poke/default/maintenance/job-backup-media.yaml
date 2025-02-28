@@ -17,7 +17,7 @@ spec:
             - /bin/sh
             - -c
             - rclone sync --exclude wiki/thumb/** --exclude wiki/temp/** --exclude
-              webp-cache/** media:media.52poke.com b2:52poke-backup/static/media
+              webp-cache/** media:media-52poke-com b2:52poke-backup/static/media
             env:
             - name: RCLONE_CONFIG_MEDIA_TYPE
               value: s3
@@ -25,14 +25,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: accessKeyID
-                  name: linode-object-storage
+                  name: hetzner-object-storage
             - name: RCLONE_CONFIG_MEDIA_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   key: secretAccessKey
-                  name: linode-object-storage
+                  name: hetzner-object-storage
             - name: RCLONE_CONFIG_MEDIA_ENDPOINT
-              value: jp-osa-1.linodeobjects.com
+              value: hel1.your-objectstorage.com
             - name: RCLONE_CONFIG_B2_TYPE
               value: b2
             - name: RCLONE_CONFIG_B2_ACCOUNT
