@@ -582,8 +582,12 @@ $wgSVGNativeRendering = true;
 # Lockdown
 wfLoadExtension( 'Lockdown' );
 $wgSpecialPageLockdown['Log'] = [ 'autoconfirmed', 'sysop', 'confirmed', 'inspector', 'archivist' ];
-$wgSpecialPageLockdown['Blocklist'] = [ 'autoconfirmed', 'sysop', 'confirmed', 'inspector', 'archivist' ];
+$wgSpecialPageLockdown['AutoblockList'] = [ 'autoconfirmed', 'sysop', 'confirmed', 'inspector', 'archivist' ];
+$wgSpecialPageLockdown['BlockList'] = [ 'autoconfirmed', 'sysop', 'confirmed', 'inspector', 'archivist' ];
 $wgSpecialPageLockdown['ComparePages'] = [ 'user' ];
 $wgSpecialPageLockdown['Contributions'] = [ 'user' ];
 $wgSpecialPageLockdown['Listusers'] = [ 'user' ];
 $wgActionLockdown['history'] = [ 'user' ];
+
+# Subpages
+$wgNamespacesWithSubpages[NS_MAIN] = true;
