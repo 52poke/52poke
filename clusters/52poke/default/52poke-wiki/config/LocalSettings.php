@@ -574,6 +574,33 @@ $wgVisualEditorEnableWikitext = true;
 # TimedMediaHandler
 wfLoadExtension( 'TimedMediaHandler' );
 $wgEnableTranscode = false;
+$wgHooks['ParserModifyImageHTML'][] = function ($parser, $file, $params, &$html) {
+	$ext = strtolower( $file->getExtension() );
+    if ( !in_array( $ext, [ 'oga', 'opus' ] ) ) {
+        return true;
+    }
+	$html = \MediaWiki\Html\HtmlHelper::modifyElements(
+		$html,
+		function ( $element ) {
+			return $element->name === 'source';
+		},
+		function ( $element ) {
+			$sourceSrc = $element->attrs['src'];
+			if (preg_match('#/wiki/([0-9a-f])/([0-9a-f]{2})/([^/]+\.(opus|oga))#', $sourceSrc, $matches)) {
+				$path = $matches[1] . '/' . $matches[2] . '/' . $matches[3];
+				$element->attrs['src'] = str_replace(
+					'/wiki/' . $path,
+					'/wiki/transcoded/' . $path . '/' . $matches[3] . '.webm',
+					$sourceSrc
+				);
+				$element->attrs['type'] = str_replace(['audio/ogg', 'audio/opus'], 'audio/webm', $element->attrs['type']);
+			}
+			return $element;
+		}
+	);
+	return true;
+};
+
 
 # svg
 $wgFileExtensions[] = "svg";

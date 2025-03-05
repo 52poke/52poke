@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oumugaeshi
+  namespace: default
+spec:
+  ports:
+  - name: oumugaeshi
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: oumugaeshi
+  type: ClusterIP

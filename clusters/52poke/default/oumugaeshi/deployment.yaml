@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oumugaeshi
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: oumugaeshi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: oumugaeshi
+    spec:
+      containers:
+      - env:
+        - name: S3_BUCKET
+          value: media-52poke-com
+        - name: S3_ENDPOINT
+          value: https://hel1.your-objectstorage.com
+        - name: S3_REGION
+          value: hel1
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hetzner-object-storage
+              key: accessKeyID
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hetzner-object-storage
+              key: secretAccessKey
+        image: ghcr.io/52poke/oumugaeshi:latest
+        imagePullPolicy: Always
+        name: oumugaeshi
+        ports:
+        - containerPort: 8080
+          name: oumugaeshi
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      restartPolicy: Always
