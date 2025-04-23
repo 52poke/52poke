@@ -404,44 +404,44 @@ $wgPoolCounterConf = [
     'ArticleView' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
         'timeout' => 15,
-        'workers' => 5,
-        'maxqueue' => 10
+        'workers' => 4,
+        'maxqueue' => 6
     ],
     'CirrusSearch-Search' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
-        'timeout' => 15,
-        'workers' => 50,
-        'maxqueue' => 150
+        'timeout' => 5,
+        'workers' => 5,
+        'maxqueue' => 10
     ],
     'CirrusSearch-Prefix' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
-        'timeout' => 15,
-        'workers' => 8,
-        'maxqueue' => 15
+        'timeout' => 5,
+        'workers' => 5,
+        'maxqueue' => 10
     ],
     'CirrusSearch-Completion' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
-        'timeout' => 15,
-        'workers' => 108,
-        'maxqueue' => 150
+        'timeout' => 5,
+        'workers' => 5,
+        'maxqueue' => 10
     ],
     'CirrusSearch-Regex' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
-        'timeout' => 60,
+        'timeout' => 5,
         'workers' => 2,
         'maxqueue' => 5
     ],
     'CirrusSearch-NamespaceLookup' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
         'timeout' => 5,
-        'workers' => 12,
-        'maxqueue' => 50
+        'workers' => 5,
+        'maxqueue' => 10
     ],
     'CirrusSearch-MoreLike' => [
         'class' => MediaWiki\PoolCounter\PoolCounterClient::class,
         'timeout' => 5,
-        'workers' => 12,
-        'maxqueue' => 50
+        'workers' => 5,
+        'maxqueue' => 10
     ]
 ];
 
