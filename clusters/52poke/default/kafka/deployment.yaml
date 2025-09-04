@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: bitnami/kafka:3.3.1
+        image: bitnamilegacy/kafka:3.3.1
         resources:
           limits:
             memory: "1Gi"
