@@ -126,8 +126,8 @@ http {
             proxy_cache_bypass $do_not_cache;
             proxy_no_cache $do_not_cache;
             proxy_max_temp_file_size 128m;
-            proxy_cache_valid 200 96h;
-            proxy_cache_valid 301 96h;
+            proxy_cache_valid 200 720h;
+            proxy_cache_valid 301 720h;
             proxy_cache_valid 302 0;
             proxy_cache_valid 404 20m;
             proxy_cache_purge PURGE from 10.0.0.0/8;
