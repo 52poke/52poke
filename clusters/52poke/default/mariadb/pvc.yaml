@@ -6,7 +6,7 @@ metadata:
 spec:
   resources:
     requests:
-      storage: 50Gi
+      storage: 80Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hcloud-volumes

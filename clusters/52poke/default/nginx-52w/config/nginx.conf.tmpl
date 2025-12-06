@@ -77,6 +77,10 @@ http {
             }
             if ($uri ~ "rest.php") {
                 set $do_not_cache 1;
+                # Route auto suggestion requests to privileged deployment
+                if ($uri ~* "/rest.php/v1/search/title") {
+                    set $upstream_52poke_wiki wiki-52poke-privileged.default.svc.cluster.local;
+                }
             }
             if ($args ~ "Special") {
                 set $do_not_cache 1;
