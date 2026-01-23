@@ -11,5 +11,9 @@
     "redis": {
         "host": "redis",
         "port": 6379
+    },
+    "llm": {
+        "baseUrl": "https://openrouter.ai/api/v1",
+        "model": "z-ai/glm-4.5-air:free"
     }
 }

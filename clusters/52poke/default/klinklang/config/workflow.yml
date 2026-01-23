@@ -9,45 +9,42 @@ triggers:
     op: test
     path: /page_title
     value: 特性列表
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 特性列表
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .eplist tr
-    idSelector:
-      mode: rawValue
-      value: td:first-of-type
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(2)
-        ja: td[lang="ja"]
-        en: td[lang="en"]
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: ability
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 特性列表
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .eplist tr
+        idSelector: td:first-of-type
+        langSelectorMap:
+          zh: td:nth-child(2)
+          ja: td[lang="ja"]
+          en: td[lang="en"]
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: ability
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Pokémon term list
 isPrivate: false
@@ -59,42 +56,41 @@ triggers:
     op: test
     path: /page_title
     value: 宝可梦列表（按全国图鉴编号）/简单版
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 宝可梦列表（按全国图鉴编号）/简单版
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .eplist tr:has(> td:nth-child(4))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(2)
-        ja: td:nth-child(3)
-        en: td:nth-child(4)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: pokemon
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 宝可梦列表（按全国图鉴编号）/简单版
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .eplist tr:has(> td:nth-child(4))
+        langSelectorMap:
+          zh: td:nth-child(2)
+          ja: td:nth-child(3)
+          en: td:nth-child(4)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: pokemon
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Site CSS
 isPrivate: false
@@ -107,55 +103,42 @@ triggers:
     op: test
     path: /page_title
     value: 神奇宝贝百科:层叠样式表
-actions:
-- actionType: GET_TEXT
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 神奇宝贝百科:层叠样式表
-- actionType: REGEXP_MATCH
-  inputBuilder:
-    pattern:
-      mode: rawValue
-      value: <pre>([\s\S]*)<\/pre>
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-  outputContext: scss
-- actionType: SCSS_COMPILE
-  inputBuilder:
-    scss:
-      mode: jsonPath
-      jsonPath: $.scss.matches[1]
-    variables:
-      mode: rawValue
-      value:
-        pageName: Common.css
-- actionType: EDIT_WIKI
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: MediaWiki:Common.css
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.css
-- actionType: SCSS_COMPILE
-  inputBuilder:
-    scss:
-      mode: jsonPath
-      jsonPath: $.scss.matches[1]
-    variables:
-      mode: rawValue
-      value:
-        pageName: Mobile.css
-- actionType: EDIT_WIKI
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: MediaWiki:Mobile.css
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.css
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_TEXT_1
+  States:
+    GET_TEXT_1:
+      Type: Task
+      Resource: GET_TEXT
+      Parameters:
+        title: 神奇宝贝百科:层叠样式表
+      ResultPath: $.payload
+      Next: REGEXP_MATCH_2
+    REGEXP_MATCH_2:
+      Type: Task
+      Resource: REGEXP_MATCH
+      Parameters:
+        pattern: <pre>([\s\S]*)<\/pre>
+        text.$: $.payload.text
+      ResultPath: $.scss
+      Next: SCSS_COMPILE_3
+    SCSS_COMPILE_3:
+      Type: Task
+      Resource: SCSS_COMPILE
+      Parameters:
+        scss.$: $.scss.matches[1]
+        variables:
+          pageName: Common.css
+      ResultPath: $.payload
+      Next: EDIT_WIKI_4
+    EDIT_WIKI_4:
+      Type: Task
+      Resource: EDIT_WIKI
+      Parameters:
+        title: MediaWiki:Common.css
+        text.$: $.payload.css
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Move term list
 isPrivate: false
@@ -167,42 +150,41 @@ triggers:
     op: test
     path: /page_title
     value: 招式列表
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 招式列表
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .hvlist tr:has(> td:nth-child(4))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(2)
-        ja: td[lang="ja"]
-        en: td:nth-child(4)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: move
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 招式列表
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .hvlist tr:has(> td:nth-child(4))
+        langSelectorMap:
+          zh: td:nth-child(2)
+          ja: td[lang="ja"]
+          en: td:nth-child(4)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: move
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Item term list
 isPrivate: false
@@ -214,42 +196,41 @@ triggers:
     op: test
     path: /page_title
     value: 道具列表
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 道具列表
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .hvlist tr:has(> td:nth-child(4))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(2)
-        ja: td:nth-child(3)
-        en: td:nth-child(4)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: item
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 道具列表
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .hvlist tr:has(> td:nth-child(4))
+        langSelectorMap:
+          zh: td:nth-child(2)
+          ja: td:nth-child(3)
+          en: td:nth-child(4)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: item
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Location term list
 isPrivate: false
@@ -261,42 +242,41 @@ triggers:
     op: test
     path: /page_title
     value: 地点列表
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 地点列表
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .eplist tr:has(> td:nth-child(3))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(1)
-        ja: td:nth-child(2)
-        en: td:nth-child(3)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: location
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 地点列表
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .eplist tr:has(> td:nth-child(3))
+        langSelectorMap:
+          zh: td:nth-child(1)
+          ja: td:nth-child(2)
+          en: td:nth-child(3)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: location
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Nature term list
 isPrivate: false
@@ -308,42 +288,41 @@ triggers:
     op: test
     path: /page_title
     value: 性格
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 性格
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: table.sortable tr:has(> td:nth-child(3))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(1)
-        ja: td[lang="ja"]
-        en: td:nth-child(3)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: nature
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 性格
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: table.sortable tr:has(> td:nth-child(3))
+        langSelectorMap:
+          zh: td:nth-child(1)
+          ja: td[lang="ja"]
+          en: td:nth-child(3)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: nature
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Trainer Class term list
 isPrivate: false
@@ -355,42 +334,41 @@ triggers:
     op: test
     path: /page_title
     value: 训练家类型
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 训练家类型
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .eplist tr:has(> td:nth-child(3))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(1) a
-        ja: td:nth-child(2)
-        en: td:nth-child(3)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: trainer-class
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 训练家类型
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .eplist tr:has(> td:nth-child(3))
+        langSelectorMap:
+          zh: td:nth-child(1) a
+          ja: td:nth-child(2)
+          en: td:nth-child(3)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: trainer-class
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Warrior term list
 isPrivate: false
@@ -402,42 +380,41 @@ triggers:
     op: test
     path: /page_title
     value: 武将
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 武将
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: table tr:has(> td[lang="ja"])
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(1)
-        ja: td[lang="ja"]
-        en: td:nth-child(3)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: warrior
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 武将
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: table tr:has(> td[lang="ja"])
+        langSelectorMap:
+          zh: td:nth-child(1)
+          ja: td[lang="ja"]
+          en: td:nth-child(3)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: warrior
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Update Character term list
 isPrivate: false
@@ -449,42 +426,41 @@ triggers:
     op: test
     path: /page_title
     value: 人物列表
-actions:
-- actionType: GET_HTML
-  inputBuilder:
-    title:
-      mode: rawValue
-      value: 人物列表
-    variants:
-      mode: rawValue
-      value:
-      - zh-hant
-      - zh-hans
-- actionType: PARSE_TERMINOLOGY_LIST
-  inputBuilder:
-    text:
-      mode: jsonPath
-      jsonPath: $.payload.text
-    variants:
-      mode: jsonPath
-      jsonPath: $.payload.variants
-    entrySelector:
-      mode: rawValue
-      value: .eplist tr:has(> td:nth-child(3))
-    langSelectorMap:
-      mode: rawValue
-      value:
-        zh: td:nth-child(1) a
-        ja: td:nth-child(2)
-        en: td:nth-child(3)
-- actionType: UPDATE_TERMINOLOGY
-  inputBuilder:
-    category:
-      mode: rawValue
-      value: character
-    list:
-      mode: jsonPath
-      jsonPath: $.payload
+- type: TRIGGER_MANUAL
+definition:
+  StartAt: GET_HTML_1
+  States:
+    GET_HTML_1:
+      Type: Task
+      Resource: GET_HTML
+      Parameters:
+        title: 人物列表
+        variants:
+        - zh-hant
+        - zh-hans
+      ResultPath: $.payload
+      Next: PARSE_TERMINOLOGY_LIST_2
+    PARSE_TERMINOLOGY_LIST_2:
+      Type: Task
+      Resource: PARSE_TERMINOLOGY_LIST
+      Parameters:
+        text.$: $.payload.text
+        variants.$: $.payload.variants
+        entrySelector: .eplist tr:has(> td:nth-child(3))
+        langSelectorMap:
+          zh: td:nth-child(1) a
+          ja: td:nth-child(2)
+          en: td:nth-child(3)
+      ResultPath: $.payload
+      Next: UPDATE_TERMINOLOGY_3
+    UPDATE_TERMINOLOGY_3:
+      Type: Task
+      Resource: UPDATE_TERMINOLOGY
+      Parameters:
+        category: character
+        list.$: $.payload
+      ResultPath: $.payload
+      End: true
 ---
 name: Recent change to Discord
 isPrivate: false
@@ -498,36 +474,29 @@ triggers:
     - op: test
       path: /performer/user_is_bot
       value: true
-actions:
-- actionType: DISCORD_MESSAGE
-  inputBuilder:
-    channel:
-      mode: rawValue
-      value: "792599126511452212"
-    message:
-      embed:
-        url:
-          mode: jsonPath
-          jsonPath: $.payload.meta.uri
-        title:
-          mode: jsonPath
-          jsonPath: $.payload.page_title
-        description:
-          mode: template
-          template: "{{stripHTML payload.parsedcomment}}"
-        fields:
-        - name:
-            mode: rawValue
-            value: "By"
-          value:
-            mode: template
-            template: "{{payload.performer.user_text}}"
-        - name:
-            mode: rawValue
-            value: "Actions"
-          value:
-            mode: template
-            template: "[Show diff](https://{{payload.meta.domain}}/index.php?title={{encodeURIComponent payload.page_title}}&diff={{payload.rev_id}}&oldid={{payload.rev_parent_id}})"
+definition:
+  StartAt: DISCORD_MESSAGE_1
+  States:
+    DISCORD_MESSAGE_1:
+      Type: Task
+      Resource: DISCORD_MESSAGE
+      Parameters:
+        channel: '792599126511452212'
+        message:
+          embed:
+            url.$: $.payload.meta.uri
+            title.$: $.payload.page_title
+            description:
+              Template: "{{stripHTML payload.parsedcomment}}"
+            fields:
+            - name: "By"
+              value:
+                Template: "{{payload.performer.user_text}}"
+            - name: "Actions"
+              value:
+                Template: "[Show diff](https://{{payload.meta.domain}}/index.php?title={{encodeURIComponent payload.page_title}}&diff={{payload.rev_id}}&oldid={{payload.rev_parent_id}})"
+      ResultPath: $.payload
+      End: true
 ---
 name: Clear cache after page editing
 isPrivate: false
@@ -535,61 +504,63 @@ enabled: true
 triggers:
 - type: TRIGGER_EVENTBUS
   topic: mediawiki.revision-create
-actions:
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh"
-  outputContext: response
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hans"
-  outputContext: response
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hant"
-  outputContext: response
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/zh/{{encodeURI payload.page_title}}"
-  outputContext: response
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/zh-hans/{{encodeURI payload.page_title}}"
-  outputContext: response
-- actionType: REQUEST
-  inputBuilder:
-    method:
-      mode: rawValue
-      value: "PURGE"
-    url:
-      mode: template
-      template: "http://nginx-52w/zh-hant/{{encodeURI payload.page_title}}"
-  outputContext: response
+definition:
+  StartAt: REQUEST_1
+  States:
+    REQUEST_1:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh
+      ResultPath: $.response
+      Next: REQUEST_2
+    REQUEST_2:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hans
+      ResultPath: $.response
+      Next: REQUEST_3
+    REQUEST_3:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hant
+      ResultPath: $.response
+      Next: REQUEST_4
+    REQUEST_4:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/zh/{{encodeURI payload.page_title}}
+      ResultPath: $.response
+      Next: REQUEST_5
+    REQUEST_5:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/zh-hans/{{encodeURI payload.page_title}}
+      ResultPath: $.response
+      Next: REQUEST_6
+    REQUEST_6:
+      Type: Task
+      Resource: REQUEST
+      Parameters:
+        method: PURGE
+        url:
+          Template: http://nginx-52w/zh-hant/{{encodeURI payload.page_title}}
+      ResultPath: $.response
+      End: true
 ---
 name: Recent change to Fedi
 isPrivate: true
@@ -611,12 +582,15 @@ triggers:
       value: 0
   throttle: 86400
   throttleKeyPath: $.page_title
-actions:
-- actionType: FEDI_POST
-  inputBuilder:
-    subject:
-      mode: rawValue
-      value: "@rotom@pub.52poke.net"
-    status:
-      mode: template
-      template: "{{payload.page_title}} {{payload.meta.uri}}"
+definition:
+  StartAt: FEDI_POST_1
+  States:
+    FEDI_POST_1:
+      Type: Task
+      Resource: FEDI_POST
+      Parameters:
+        subject: '@rotom@pub.52poke.net'
+        status:
+          Template: '{{payload.page_title}} {{payload.meta.uri}}'
+      ResultPath: $.payload
+      End: true

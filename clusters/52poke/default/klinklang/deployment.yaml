@@ -45,6 +45,11 @@ spec:
             secretKeyRef:
               key: token
               name: 52poke-discord
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: openrouter-api-key
+              name: klinklang
         image: ghcr.io/52poke/klinklang:latest
         imagePullPolicy: Always
         name: klinklang
