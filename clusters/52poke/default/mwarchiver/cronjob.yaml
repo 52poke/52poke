@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mwarchiver
+  namespace: default
+spec:
+  schedule: "0 4 * * 0"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: mwarchiver
+              image: ghcr.io/52poke/mwarchiver:latest
+              imagePullPolicy: Always
+              env:
+                - name: MWARCHIVER_API_URL
+                  value: "http://wiki-52poke-privileged/api.php"
+                - name: MWARCHIVER_DB_PATH
+                  value: /tmp/mwarchiver.db
+                - name: MWARCHIVER_LIMIT
+                  value: "1000000"
+                - name: MWARCHIVER_NAMESPACES
+                  value: "0,4,6,10,12"
+                - name: RELEASE_UPLOAD
+                  value: "1"
+                - name: RELEASE_OVERWRITE
+                  value: "1"
+                - name: GITHUB_REPOSITORY
+                  value: "52poke/mwarchiver"
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: mwarchiver
+                      key: GITHUB_TOKEN
+                - name: RELEASE_ZIP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mwarchiver
+                      key: RELEASE_ZIP_PASSWORD
