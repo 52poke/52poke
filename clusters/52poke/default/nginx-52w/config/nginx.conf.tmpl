@@ -38,6 +38,13 @@ http {
         ~*zh-(hans|cn|sg|my) zh-hans;
     }
 
+    map $uri $canonical_uri {
+        default $uri;
+        ~^/zh/(?<t>.+)$      /wiki/$t;
+        ~^/zh-hans/(?<t>.+)$ /wiki/$t;
+        ~^/zh-hant/(?<t>.+)$ /wiki/$t;
+    }
+
     server {
         listen 80;
         server_name wiki.52poke.com default;
@@ -77,10 +84,10 @@ http {
             }
             if ($uri ~ "rest.php") {
                 set $do_not_cache 1;
-                # Route auto suggestion requests to privileged deployment
-                if ($uri ~* "/rest.php/v1/search/title") {
-                    set $upstream_52poke_wiki wiki-52poke-privileged.default.svc.cluster.local;
-                }
+            }
+            # Route auto suggestion requests to privileged deployment
+            if ($uri ~* "/rest.php/v1/search/title") {
+                set $upstream_52poke_wiki wiki-52poke-privileged.default.svc.cluster.local;
             }
             if ($args ~ "Special") {
                 set $do_not_cache 1;
@@ -89,13 +96,13 @@ http {
                 set $do_not_cache 1;
             }
             if ($uri ~ "^/zh/") {
-                set $lang "";
+                set $lang "zh";
             }
             if ($uri ~ "^/zh-hans/") {
-                set $lang "";
+                set $lang "zh-hans";
             }
             if ($uri ~ "^/zh-hant/") {
-                set $lang "";
+                set $lang "zh-hant";
             }
             if ($uri ~ "^/load\.php") {
                 set $lang "";
@@ -126,12 +133,12 @@ http {
             proxy_set_header User-Agent "";
             proxy_cache wiki;
             proxy_ignore_headers Cache-Control Expires Vary;
-            proxy_cache_key $uri$is_args$args$lang;
+            proxy_cache_key $canonical_uri$is_args$args$lang;
             proxy_cache_bypass $do_not_cache;
             proxy_no_cache $do_not_cache;
             proxy_max_temp_file_size 128m;
-            proxy_cache_valid 200 720h;
-            proxy_cache_valid 301 720h;
+            proxy_cache_valid 200 360h;
+            proxy_cache_valid 301 360h;
             proxy_cache_valid 302 0;
             proxy_cache_valid 404 20m;
             proxy_cache_purge PURGE from 10.0.0.0/8;

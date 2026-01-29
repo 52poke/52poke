@@ -373,6 +373,18 @@ $wgHooks['OutputPageBeforeHTML'][] = function ($out, &$text) {
     }
     return true;
 };
+$wgHooks['GetCanonicalURL'][] = function ( $title, &$url, $query ) {
+    $parsedUrl = \MediaWiki\MediaWikiServices::getInstance()->getUrlUtils()->parse( $url );
+    $path = $parsedUrl['path'] ?? '';
+
+    if ( preg_match( '#^/(zh(?:-hans|-hant)?)(/|$)#', $path, $matches ) ) {
+        $rest = substr( $path, strlen( '/' . $matches[1] ) );
+        $parsedUrl['path'] = $rest === '' ? '/wiki' : '/wiki' . $rest;
+        $url = \MediaWiki\Utils\UrlUtils::assemble( $parsedUrl );
+    }
+
+    return true;
+};
 
 # Echo Extension
 wfLoadExtension( "Echo" );
