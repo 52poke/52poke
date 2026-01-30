@@ -13,12 +13,17 @@ Please use [issues](https://github.com/52poke/52poke/issues) and [wiki](https://
 
 ## Sub-projects
 
-- [timburr](https://github.com/52poke/timburr): A MediaWiki event handler.
 - [mediawiki](https://github.com/52poke/mediawiki): Core MediaWiki repository of 52Poké Wiki.
-- [malasada](https://github.com/52poke/malasada): A serverless function to resize and convert images.
-- [meltan](https://github.com/52poke/meltan): Dockerfiles to build containers for services and jobs on 52Poké.
-- [klinklang](https://github.com/52poke/klinklang): A collection of utilities for 52Poké Wiki.
+- [timburr](https://github.com/52poke/timburr): A MediaWiki event handler.
+- [klinklang](https://github.com/52poke/klinklang): A collection of utilities and automation tools for 52Poké Wiki.
+- [malasada](https://github.com/52poke/malasada): Resizing and converting images for MediaWiki.
+- [mwarchiver](https://github.com/52poke/mwarchiver): A minimal MediaWiki archiver.
+- [oumugaeshi](https://github.com/52poke/oumugaeshi): Adding Safari support for OGG/OPUS files.
+- [inazuma](https://github.com/52poke/inazuma): A front-end cache server for 52Poké Wiki.
+- [wp-chinese-conversion](https://github.com/52poke/wp-chinese-conversion): Conversion between Simplified and Traditional Chinese for WordPress.
+- [52poke-evolution](https://github.com/52poke/52poke-evolution): WordPress theme for 52poke.com.
 - [ivcalc](https://github.com/52poke/ivcalc): Pokémon Individual Value & Stat Calculator in Chinese.
+- [meltan](https://github.com/52poke/meltan): Dockerfiles to build images for 52Poké.
 - [makeawish](https://github.com/52poke/makeawish): Petition for In-game Chinese Support in Pokémon Video Games.
 
 ## Deployment
