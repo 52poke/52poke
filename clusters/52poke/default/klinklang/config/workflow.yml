@@ -533,33 +533,6 @@ definition:
         url:
           Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hant
       ResultPath: $.response
-      Next: REQUEST_4
-    REQUEST_4:
-      Type: Task
-      Resource: REQUEST
-      Parameters:
-        method: PURGE
-        url:
-          Template: http://nginx-52w/zh/{{encodeURI payload.page_title}}
-      ResultPath: $.response
-      Next: REQUEST_5
-    REQUEST_5:
-      Type: Task
-      Resource: REQUEST
-      Parameters:
-        method: PURGE
-        url:
-          Template: http://nginx-52w/zh-hans/{{encodeURI payload.page_title}}
-      ResultPath: $.response
-      Next: REQUEST_6
-    REQUEST_6:
-      Type: Task
-      Resource: REQUEST
-      Parameters:
-        method: PURGE
-        url:
-          Template: http://nginx-52w/zh-hant/{{encodeURI payload.page_title}}
-      ResultPath: $.response
       End: true
 ---
 name: Recent change to Fedi

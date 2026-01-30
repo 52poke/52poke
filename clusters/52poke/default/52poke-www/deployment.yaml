@@ -28,7 +28,7 @@ spec:
             secretKeyRef:
               key: password
               name: mysql-www
-        image: wordpress:php7.4-fpm
+        image: wordpress:fpm
         name: wordpress
         ports:
         - containerPort: 9000
