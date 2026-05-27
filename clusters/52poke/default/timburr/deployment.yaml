@@ -28,11 +28,6 @@ spec:
             secretKeyRef:
               key: cf_zone_id
               name: cloudflare
-        - name: MALASADA_API_ID
-          valueFrom:
-            secretKeyRef:
-              key: malasada_api_id
-              name: aws-api-gateway
         volumeMounts:
         - name: config-volume
           mountPath: /app/conf
