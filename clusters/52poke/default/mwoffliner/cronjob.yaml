@@ -6,7 +6,7 @@ metadata:
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
-  schedule: "0 5 * * 0"
+  schedule: "0 4 * * 2"
   successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
