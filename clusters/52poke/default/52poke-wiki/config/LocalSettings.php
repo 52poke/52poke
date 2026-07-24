@@ -54,7 +54,7 @@ $wgStylePath = "$wgScriptPath/skins";
 ## or else you'll overwrite your logo when you upgrade!
 $wgLogo = "https://media.52poke.com/assets/wikilogo.png";
 $wgLogos = [
-    'icon' => 'https://media.52poke.com/wiki/4/4b/Wikilogo.png',
+    'icon' => 'https://media.52poke.com/wiki/a/a9/Wikilogo.svg',
     'wordmark' => [
         'src' => 'https://media.52poke.com/assets/wiki-wordmark-sc.png',
         'width' => 131,
