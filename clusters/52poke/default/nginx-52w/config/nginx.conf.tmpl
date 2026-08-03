@@ -110,9 +110,6 @@ http {
             if ($args ~ "&(zh|zh-hans|zh-hant)$") {
                 set $lang "";
             }
-            if ($request_method = "PURGE") {
-                set $lang "";
-            }
             if ($args ~ "oldid=") {
                 set $require_login "${do_not_cache}2";
             }
