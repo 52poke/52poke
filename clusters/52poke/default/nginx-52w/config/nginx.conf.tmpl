@@ -49,7 +49,7 @@ http {
         listen 80;
         server_name wiki.52poke.com default;
         access_log /var/log/nginx/access.log rt_cache;
-        set $upstream_52poke_wiki wiki-52poke.default.svc.cluster.local;
+        set $upstream_52poke_wiki inazuma.default.svc.cluster.local;
 {{ range (ds "block").ban_ua }}
         if ($http_user_agent = "{{.}}") {
             return 403;

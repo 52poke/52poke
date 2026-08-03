@@ -18,16 +18,14 @@ purge:
   cfZoneID: {{ .Env.CF_ZONE_ID }}
   entries:
   - host: wiki.52poke.com
+    pathMatch: "^/(wiki|zh|zh-hans|zh-hant)/"
+    timeout: 30000
     method: PURGE
-    variants:
-    - zh
-    - zh-hans
-    - zh-hant
     uris:
-    #- "http://nginx-52w#url##variants#"
-    #- "http://nginx-52w#url##variants#mobile"
+    - "http://inazuma#url#"
     headers:
       host: wiki.52poke.com
+      x-purge-timestamp: "#date#"
   - host: media.52poke.com
     method: PURGE
     uris:
