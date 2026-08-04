@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       annotations:
-        rollout.52poke.com/config-revision: "2026-08-03-inazuma"
+        rollout.52poke.com/config-revision: "2026-08-04-inazuma-timeouts"
       labels:
         app: timburr
     spec:

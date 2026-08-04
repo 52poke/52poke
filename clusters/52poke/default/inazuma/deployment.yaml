@@ -18,6 +18,12 @@ spec:
       - env:
         - name: INAZUMA_MEDIAWIKI_BASE_URL
           value: http://wiki-52poke
+        - name: INAZUMA_PURGE_MEDIAWIKI_TIMEOUT_SECONDS
+          value: "40"
+        - name: INAZUMA_SERVER_WRITE_TIMEOUT_SECONDS
+          value: "130"
+        - name: INAZUMA_LOCK_TTL_SECONDS
+          value: "60"
         - name: INAZUMA_REDIS_ADDR
           value: redis:6379
         - name: INAZUMA_S3_ENDPOINT
