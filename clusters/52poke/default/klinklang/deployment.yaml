@@ -11,6 +11,8 @@ spec:
     type: Recreate
   template:
     metadata:
+      annotations:
+        rollout.52poke.com/config-revision: "2026-08-03-inazuma"
       labels:
         app: klinklang
     spec:
