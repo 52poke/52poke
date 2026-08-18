@@ -23,7 +23,16 @@ resource "postgresql_role" "klinklang" {
 resource "postgresql_grant" "klinklang" {
   database    = postgresql_database.klinklang.name
   role        = postgresql_role.klinklang.name
-  schema      = "public"
   object_type = "database"
   privileges  = ["ALL"]
+}
+
+# Database CREATE allows creating schemas, but PostgreSQL requires a separate
+# schema-level CREATE privilege for tables, indexes, and migration history.
+resource "postgresql_grant" "klinklang_public_schema" {
+  database    = postgresql_database.klinklang.name
+  role        = postgresql_role.klinklang.name
+  schema      = "public"
+  object_type = "schema"
+  privileges  = ["USAGE", "CREATE"]
 }

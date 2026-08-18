@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mwoffliner
+  namespace: default
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "0 4 * * 2"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: mwoffliner
+              image: ghcr.io/openzim/mwoffliner
+              imagePullPolicy: Always
+              command:
+                - /scripts/entrypoint.sh
+              args:
+                - --verbose
+                - --mwUrl=http://wiki-52poke-privileged/
+                - --adminEmail=no-reply@52poke.net
+                - --mwActionApiPath=/api.php
+                - --mwRestApiPath=/rest.php
+                - --mwModulePath=/load.php
+                - --format=nopic
+                - --resume
+                - --outputDirectory=/out
+                - --speed=2
+              env:
+                - name: REDIS
+                  value: redis://redis:6379/1
+                - name: RELEASE_UPLOAD
+                  value: "1"
+                - name: RELEASE_OVERWRITE
+                  value: "1"
+                - name: GITHUB_REPOSITORY
+                  value: "52poke/mwarchiver"
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: mwarchiver
+                      key: GITHUB_TOKEN
+                - name: RELEASE_ZIP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mwarchiver
+                      key: RELEASE_ZIP_PASSWORD
+              volumeMounts:
+                - name: mwoffliner-entrypoint
+                  mountPath: /scripts
+                  readOnly: true
+                - name: mwoffliner-output
+                  mountPath: /out
+          volumes:
+            - name: mwoffliner-entrypoint
+              configMap:
+                name: mwoffliner-entrypoint
+                defaultMode: 0555
+            - name: mwoffliner-output
+              emptyDir: {}
