@@ -23,7 +23,7 @@ spec:
                 - /scripts/entrypoint.sh
               env:
                 - name: DUMP_NAMESPACES
-                  value: "0,4,6,8,10,12"
+                  value: "0,4,6,8,10,12,14"
                 - name: GITHUB_REPOSITORY
                   value: "52poke/mwarchiver"
                 - name: GITHUB_TOKEN
