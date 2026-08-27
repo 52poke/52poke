@@ -4,29 +4,26 @@ metadata:
   name: mwarchiver
   namespace: default
 spec:
-  schedule: "0 4 * * 0"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "0 2 * * 0"
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 21600
+      backoffLimit: 0
       template:
         spec:
           restartPolicy: Never
           containers:
             - name: mwarchiver
-              image: ghcr.io/52poke/mwarchiver:latest
+              image: ghcr.io/52poke/mediawiki:latest
               imagePullPolicy: Always
+              command:
+                - /scripts/entrypoint.sh
               env:
-                - name: MWARCHIVER_API_URL
-                  value: "http://wiki-52poke-privileged/api.php"
-                - name: MWARCHIVER_DB_PATH
-                  value: /tmp/mwarchiver.db
-                - name: MWARCHIVER_LIMIT
-                  value: "1000000"
-                - name: MWARCHIVER_NAMESPACES
-                  value: "0,4,6,10,12"
-                - name: RELEASE_UPLOAD
-                  value: "1"
-                - name: RELEASE_OVERWRITE
-                  value: "1"
+                - name: DUMP_NAMESPACES
+                  value: "0,4,6,8,10,12"
                 - name: GITHUB_REPOSITORY
                   value: "52poke/mwarchiver"
                 - name: GITHUB_TOKEN
@@ -34,8 +31,98 @@ spec:
                     secretKeyRef:
                       name: mwarchiver
                       key: GITHUB_TOKEN
+                - name: RELEASE_OVERWRITE
+                  value: "1"
                 - name: RELEASE_ZIP_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: mwarchiver
                       key: RELEASE_ZIP_PASSWORD
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 256Mi
+                limits:
+                  cpu: "2"
+                  memory: 1Gi
+              volumeMounts:
+                - mountPath: /scripts
+                  name: mwarchiver-entrypoint
+                  readOnly: true
+                - mountPath: /out
+                  name: mwarchiver-output
+                - mountPath: /home/52poke/wiki/LocalSettings.php
+                  name: 52poke-wiki-config
+                  readOnly: true
+                  subPath: LocalSettings.php
+                - mountPath: /run/secrets/52w-db-user
+                  name: mysql-user
+                  readOnly: true
+                  subPath: username
+                - mountPath: /run/secrets/52w-db-password
+                  name: mysql-user
+                  readOnly: true
+                  subPath: password
+                - mountPath: /run/secrets/52w-secret-key
+                  name: 52poke-wiki-secret
+                  readOnly: true
+                  subPath: secretKey
+                - mountPath: /run/secrets/52w-upgrade-key
+                  name: 52poke-wiki-secret
+                  readOnly: true
+                  subPath: upgradeKey
+                - mountPath: /run/secrets/aws-s3-ak
+                  name: aws-s3
+                  readOnly: true
+                  subPath: accessKeyID
+                - mountPath: /run/secrets/aws-s3-sk
+                  name: aws-s3
+                  readOnly: true
+                  subPath: secretAccessKey
+                - mountPath: /run/secrets/aws-smtp-ak
+                  name: aws-ses
+                  readOnly: true
+                  subPath: accessKeyID
+                - mountPath: /run/secrets/aws-smtp-sk
+                  name: aws-ses
+                  readOnly: true
+                  subPath: secretAccessKey
+                - mountPath: /run/secrets/recaptcha-site-key
+                  name: recaptcha
+                  readOnly: true
+                  subPath: siteKey
+                - mountPath: /run/secrets/recaptcha-secret-key
+                  name: recaptcha
+                  readOnly: true
+                  subPath: secretKey
+                - mountPath: /run/secrets/oauth2
+                  name: 52poke-wiki-oauth2
+                  readOnly: true
+          volumes:
+            - name: mwarchiver-entrypoint
+              configMap:
+                name: mwarchiver-entrypoint
+                defaultMode: 0555
+            - name: mwarchiver-output
+              emptyDir: {}
+            - name: 52poke-wiki-config
+              configMap:
+                name: 52poke-wiki-1-43
+            - name: mysql-user
+              secret:
+                secretName: mysql-wiki
+            - name: 52poke-wiki-secret
+              secret:
+                secretName: 52poke-wiki
+            - name: 52poke-wiki-oauth2
+              secret:
+                secretName: 52poke-wiki-oauth2
+            - name: aws-s3
+              secret:
+                secretName: hetzner-object-storage
+            - name: aws-ses
+              secret:
+                secretName: aws-ses
+            - name: recaptcha
+              secret:
+                secretName: recaptcha
