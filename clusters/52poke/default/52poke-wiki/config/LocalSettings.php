@@ -456,6 +456,9 @@ $wgPoolCounterConf = [
         'maxqueue' => 10
     ]
 ];
+$wgPoolCountClientConf = [
+    'servers' => [ '127.0.0.1' ],
+];
 
 # Thanks Extension
 wfLoadExtension( 'Thanks' );

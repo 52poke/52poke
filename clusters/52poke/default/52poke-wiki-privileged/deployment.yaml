@@ -86,18 +86,6 @@ spec:
         - mountPath: /run/secrets/oauth2
           name: 52poke-wiki-oauth2
           readOnly: true
-      - image: ghcr.io/52poke/poolcounter:latest
-        imagePullPolicy: Always
-        name: poolcounter
-        ports:
-        - containerPort: 7531
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 500m
-            memory: 128Mi
       volumes:
       - configMap:
           name: 52poke-wiki-1-43
