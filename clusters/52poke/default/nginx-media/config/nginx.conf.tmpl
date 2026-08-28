@@ -33,7 +33,6 @@ http {
     server {
         listen   80;
         access_log /var/log/nginx/access.log rt_cache;
-        set $upstream_oumugaeshi oumugaeshi.default.svc.cluster.local:8080;
         server_name media.52poke.com assets.52poke.com static.52poke.com media.52poke.net s0.52poke.wiki;
 
         valid_referers none blocked 52poke.com *.52poke.com 52poke.wiki *.52poke.wiki 52poke.net *.52poke.net;
@@ -70,37 +69,11 @@ http {
             proxy_cache_purge PURGE from 10.0.0.0/8;
         }
 
-        location ~ ^/wiki/transcoded/ {
-            proxy_pass https://media-52poke-com.hel1.your-objectstorage.com$request_uri;
-            proxy_set_header X-Real-IP '';
-            proxy_set_header X-Forwarded-For '';
-            proxy_redirect     off;
-            proxy_pass_header  Server;
-            proxy_cache        media;
-            proxy_cache_key    media.52poke.com$uri;
-            proxy_cache_valid  200 4w;
-            proxy_max_temp_file_size 8192m;
-            proxy_intercept_errors on;
-            expires 4w;
-            error_page     404 502 504 403 = @oumugaeshi;
-            proxy_cache_purge PURGE from 10.0.0.0/8;
-        }
-
         location @thumb {
             internal;
             proxy_pass         https://{{ .Env.MALASADA_API_ID }}.execute-api.eu-central-1.amazonaws.com$request_uri;
             proxy_ssl_server_name on;
             proxy_pass_header  Server;
-            proxy_cache        media;
-            proxy_cache_key    media.52poke.com$uri;
-            proxy_cache_valid  200 4w;
-            proxy_max_temp_file_size 8192m;
-            expires 4w;
-        }
-
-        location @oumugaeshi {
-            internal;
-            proxy_pass         http://$upstream_oumugaeshi;
             proxy_cache        media;
             proxy_cache_key    media.52poke.com$uri;
             proxy_cache_valid  200 4w;
