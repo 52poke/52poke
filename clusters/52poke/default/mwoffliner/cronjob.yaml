@@ -27,6 +27,7 @@ spec:
                 - --mwActionApiPath=/api.php
                 - --mwRestApiPath=/rest.php
                 - --mwModulePath=/load.php
+                - --onlyNamespaces=0,4,6,8,10,12,14,100
                 - --format=nopic
                 - --resume
                 - --outputDirectory=/out

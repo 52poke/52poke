@@ -97,7 +97,7 @@ main() {
 
   local output_dir="${OUTPUT_DIR:-/out}"
   local release_tag="${RELEASE_TAG:-$(date -u +%Y.%m.%d)}"
-  local dump_namespaces="${DUMP_NAMESPACES:-0,4,6,8,10,12,14}"
+  local dump_namespaces="${DUMP_NAMESPACES:-0,4,6,8,10,12,14,100}"
   local asset_name="${RELEASE_ASSET_NAME:-mwarchiver-${release_tag}.zip}"
   DUMP_PATH="${output_dir}/52poke-${release_tag}.xml.gz"
   ASSET_PATH="${output_dir}/${asset_name}"
