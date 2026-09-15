@@ -16,16 +16,15 @@ spec:
           restartPolicy: Never
           containers:
             - name: mwoffliner
-              image: ghcr.io/openzim/mwoffliner
+              image: ghcr.io/openzim/mwoffliner:2.0.0
               imagePullPolicy: Always
               command:
                 - /scripts/entrypoint.sh
               args:
-                - --verbose
+                - --logLevel=info
                 - --mwUrl=http://wiki-52poke-privileged/
                 - --adminEmail=no-reply@52poke.net
                 - --mwActionApiPath=/api.php
-                - --mwRestApiPath=/rest.php
                 - --mwModulePath=/load.php
                 - --onlyNamespaces=0,4,6,8,10,12,14,100
                 - --format=nopic
