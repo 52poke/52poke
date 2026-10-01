@@ -291,6 +291,26 @@ wfLoadSkin( "MonoBook" );
 wfLoadSkin( "Vector" );
 wfLoadSkin( 'MinervaNeue' );
 
+# restrict parse API to logged-in users only
+$wgHooks['ApiCheckCanExecute'][] = static function (
+    $module,
+    $user,
+    &$message
+) {
+    if (
+        $module->getModuleName() === 'parse' &&
+        !$user->isNamed()
+    ) {
+        $message = [
+            'apierror-mustbeloggedin',
+            $module->msg( 'action-read' )
+        ];
+        return false;
+    }
+
+    return true;
+};
+
 # googleAnalytics Extension
 require_once "$IP/extensions/googleAnalytics/googleAnalytics.php";
 $wgGoogleAnalyticsAccount = "UA-4004655-3";
