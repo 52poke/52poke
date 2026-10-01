@@ -1,47 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oumugaeshi
+  name: malasada
   namespace: default
 spec:
   selector:
     matchLabels:
-      app: oumugaeshi
+      app: malasada
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: oumugaeshi
+        app: malasada
     spec:
       containers:
       - env:
+        - name: PORT
+          value: "3000"
         - name: S3_BUCKET
           value: media-52poke-com
         - name: S3_ENDPOINT
           value: https://hel1.your-objectstorage.com
         - name: S3_REGION
           value: hel1
-        - name: S3_ACCESS_KEY
+        - name: S3_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
               name: hetzner-object-storage
               key: accessKeyID
-        - name: S3_SECRET_KEY
+        - name: S3_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: hetzner-object-storage
               key: secretAccessKey
-        image: ghcr.io/52poke/oumugaeshi:latest
+        image: ghcr.io/52poke/malasada:latest
         imagePullPolicy: Always
-        name: oumugaeshi
+        name: malasada
         ports:
-        - containerPort: 8080
-          name: oumugaeshi
+        - containerPort: 3000
+          name: malasada
         resources:
           limits:
-            memory: 512Mi
             cpu: "1"
+            memory: 1Gi
           requests:
             cpu: 100m
             memory: 128Mi

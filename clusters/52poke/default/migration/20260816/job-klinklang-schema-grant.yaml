@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: klinklang-schema-grant-20260816
+  namespace: default
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      containers:
+      - name: grant-schema-access
+        image: postgres:17
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -eu
+          psql \
+            --host=postgres \
+            --username="$POSTGRES_USER" \
+            --dbname=klinklang \
+            --set=ON_ERROR_STOP=1 \
+            --command='GRANT USAGE, CREATE ON SCHEMA public TO klinklang;'
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+      restartPolicy: Never

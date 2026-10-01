@@ -18,7 +18,6 @@ Please use [issues](https://github.com/52poke/52poke/issues) and [wiki](https://
 - [klinklang](https://github.com/52poke/klinklang): A collection of utilities and automation tools for 52Poké Wiki.
 - [malasada](https://github.com/52poke/malasada): Resizing and converting images for MediaWiki.
 - [mwarchiver](https://github.com/52poke/mwarchiver): A minimal MediaWiki archiver.
-- [oumugaeshi](https://github.com/52poke/oumugaeshi): Adding Safari support for OGG/OPUS files.
 - [inazuma](https://github.com/52poke/inazuma): A front-end cache server for 52Poké Wiki.
 - [wp-chinese-conversion](https://github.com/52poke/wp-chinese-conversion): Conversion between Simplified and Traditional Chinese for WordPress.
 - [52poke-evolution](https://github.com/52poke/52poke-evolution): WordPress theme for 52poke.com.

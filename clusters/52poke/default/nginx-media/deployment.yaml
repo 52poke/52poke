@@ -22,12 +22,6 @@ spec:
         - -c
         - |
           gomplate < /templates/nginx.conf.tmpl > /etc/nginx/nginx.conf
-        env:
-        - name: MALASADA_API_ID
-          valueFrom:
-            secretKeyRef:
-              key: malasada_api_id
-              name: aws-api-gateway
         volumeMounts:
         - name: config-volume
           mountPath: /etc/nginx
