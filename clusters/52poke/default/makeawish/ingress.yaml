@@ -11,7 +11,7 @@ spec:
       paths:
       - backend:
           service:
-            name: makeawish
+            name: maintenance-52poke
             port:
               number: 80
         path: /
