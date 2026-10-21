@@ -14,7 +14,7 @@ spec:
       paths:
       - backend:
           service:
-            name: maintenance-52poke
+            name: www-52poke
             port:
               number: 80
         path: /
