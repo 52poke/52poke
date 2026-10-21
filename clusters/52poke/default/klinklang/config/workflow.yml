@@ -513,25 +513,10 @@ definition:
       Parameters:
         method: PURGE
         url:
-          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh
-      ResultPath: $.response
-      Next: REQUEST_2
-    REQUEST_2:
-      Type: Task
-      Resource: REQUEST
-      Parameters:
-        method: PURGE
-        url:
-          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hans
-      ResultPath: $.response
-      Next: REQUEST_3
-    REQUEST_3:
-      Type: Task
-      Resource: REQUEST
-      Parameters:
-        method: PURGE
-        url:
-          Template: http://nginx-52w/wiki/{{encodeURI payload.page_title}}zh-hant
+          Template: http://inazuma/wiki/{{encodeURI payload.page_title}}
+        headers:
+          X-Purge-Timestamp:
+            Template: "{{payload.meta.dt}}"
       ResultPath: $.response
       End: true
 ---

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inazuma
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: inazuma
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: inazuma
+    spec:
+      containers:
+      - env:
+        - name: INAZUMA_MEDIAWIKI_BASE_URL
+          value: http://wiki-52poke
+        - name: INAZUMA_PURGE_MEDIAWIKI_TIMEOUT_SECONDS
+          value: "40"
+        - name: INAZUMA_SERVER_WRITE_TIMEOUT_SECONDS
+          value: "130"
+        - name: INAZUMA_LOCK_TTL_SECONDS
+          value: "60"
+        - name: INAZUMA_REDIS_ADDR
+          value: redis:6379
+        - name: INAZUMA_S3_ENDPOINT
+          value: https://hel1.your-objectstorage.com
+        - name: INAZUMA_S3_REGION
+          value: hel1
+        - name: INAZUMA_S3_BUCKET
+          value: 52poke-cache
+        - name: INAZUMA_S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: accessKeyID
+              name: hetzner-object-storage
+        - name: INAZUMA_S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secretAccessKey
+              name: hetzner-object-storage
+        - name: INAZUMA_NGINX_PURGE_URL
+          value: http://nginx-52w
+        image: ghcr.io/52poke/inazuma:latest
+        imagePullPolicy: Always
+        name: inazuma
+        ports:
+        - containerPort: 8080
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http
+          initialDelaySeconds: 2
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: "1"
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      restartPolicy: Always
