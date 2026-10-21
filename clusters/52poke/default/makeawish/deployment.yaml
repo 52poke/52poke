@@ -42,7 +42,7 @@ spec:
             secretKeyRef:
               key: secretAccessKey
               name: hetzner-object-storage
-        image: ghcr.io/mudkipme/makeawish:latest
+        image: ghcr.io/52poke/makeawish:latest
         imagePullPolicy: Always
         name: makeawish
         ports:

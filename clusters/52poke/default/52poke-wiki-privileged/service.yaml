@@ -8,4 +8,4 @@ spec:
     - port: 80
       targetPort: 80
   selector:
-    app: 52poke-maintenance
+    app: 52poke-wiki-privileged

@@ -11,6 +11,8 @@ spec:
     type: Recreate
   template:
     metadata:
+      annotations:
+        rollout.52poke.com/image-revision: "2026-10-22"
       labels:
         app: 52poke-wiki
     spec:
