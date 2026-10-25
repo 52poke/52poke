@@ -72,6 +72,9 @@ http {
 
         location @thumb {
             internal;
+            if ($request_method = PURGE) {
+                return 404;
+            }
             proxy_pass         http://$upstream_malasada$request_uri;
             proxy_pass_header  Server;
             proxy_cache        media;
