@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       annotations:
-        rollout.52poke.com/image-revision: "2026-10-29-blocklogin"
+        rollout.52poke.com/image-revision: "2026-10-29-blocklogin-cf"
       labels:
         app: 52poke-wiki-privileged
     spec:

@@ -313,13 +313,13 @@ $wgCSPHeader = [
 $wgHooks['ContentSecurityPolicyDirectives'][] = static function ( array &$directives ) {
 	$directives = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://static.cloudflareinsights.com",
 		"script-src-attr 'none'",
 		"style-src 'self' 'unsafe-inline'",
 		"img-src 'self' data: https://media.52poke.com https://*.52poke.com https://licensebuttons.net https://www.google-analytics.com",
 		"font-src 'self' data: https://media.52poke.com",
 		"media-src 'self' https://media.52poke.com",
-		"connect-src 'self' https://media.52poke.com https://www.google-analytics.com",
+		"connect-src 'self' https://media.52poke.com https://www.google-analytics.com https://cloudflareinsights.com",
 		"frame-src 'self'",
 		"child-src 'self'",
 		"object-src 'none'",

@@ -52,8 +52,9 @@ http {
         set $upstream_52poke_wiki inazuma.default.svc.cluster.local;
         # Allowlist is limited to what the wiki actually loads:
         #   Google Analytics (legacy analytics.js, www.google-analytics.com)
+        #   Cloudflare Web Analytics (edge-injected beacon, RUM POST)
         #   media CDN / s1.52poke.com, CC licence badges
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://media.52poke.com https://*.52poke.com https://licensebuttons.net https://www.google-analytics.com; font-src 'self' data: https://media.52poke.com; media-src 'self' https://media.52poke.com; connect-src 'self' https://media.52poke.com https://www.google-analytics.com; frame-src 'self'; child-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://static.cloudflareinsights.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://media.52poke.com https://*.52poke.com https://licensebuttons.net https://www.google-analytics.com; font-src 'self' data: https://media.52poke.com; media-src 'self' https://media.52poke.com; connect-src 'self' https://media.52poke.com https://www.google-analytics.com https://cloudflareinsights.com; frame-src 'self'; child-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" always;
 {{ range (ds "block").ban_ua }}
         if ($http_user_agent = "{{.}}") {
             return 403;
