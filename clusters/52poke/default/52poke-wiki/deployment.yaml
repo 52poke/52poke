@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       annotations:
-        rollout.52poke.com/image-revision: "2026-10-22"
+        rollout.52poke.com/image-revision: "2026-10-22-csp"
       labels:
         app: 52poke-wiki
     spec:

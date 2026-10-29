@@ -288,6 +288,42 @@ $wgAutoConfirmAge = 7*86400;
 $wgAutoConfirmCount = 50;
 $wgShowExceptionDetails = true;
 
+# ---------------------------------------------------------------------------
+# Content Security Policy
+#
+# The edge proxy (default/nginx-52w) sends the authoritative CSP header. The
+# same policy is emitted here as defence in depth, so pages still carry a CSP
+# if the edge header is ever lost (e.g. someone adds add_header in a location
+# block, which silently stops nginx inheriting the server-level header).
+#
+# Keep this list identical to nginx.conf.tmpl: when two CSP headers are sent,
+# browsers enforce the intersection, so any drift can break the wiki.
+# ---------------------------------------------------------------------------
+$wgCSPHeader = [
+	// Never let the generated policy be stricter than the edge policy.
+	'default-src' => false,
+	'unsafeFallback' => true,
+	'report-uri' => false,
+];
+$wgHooks['ContentSecurityPolicyDirectives'][] = static function ( array &$directives ) {
+	$directives = [
+		"default-src 'self'",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com",
+		"script-src-attr 'none'",
+		"style-src 'self' 'unsafe-inline'",
+		"img-src 'self' data: https://media.52poke.com https://*.52poke.com https://licensebuttons.net https://www.google-analytics.com",
+		"font-src 'self' data: https://media.52poke.com",
+		"media-src 'self' https://media.52poke.com",
+		"connect-src 'self' https://media.52poke.com https://www.google-analytics.com",
+		"frame-src 'self'",
+		"child-src 'self'",
+		"object-src 'none'",
+		"base-uri 'self'",
+		"form-action 'self'",
+	];
+	return true;
+};
+
 wfLoadSkin( "MonoBook" );
 wfLoadSkin( "Vector" );
 wfLoadSkin( 'MinervaNeue' );
