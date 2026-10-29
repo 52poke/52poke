@@ -397,6 +397,14 @@ $wgRSSUrlWhitelist = array('https://52poke.com/feed/', 'http://www-52poke/feed/'
 # Gadgets Extension
 wfLoadExtension( "Gadgets" );
 
+# OATHAuth (TOTP two-factor authentication)
+# Schema (oathauth_types, oathauth_devices) was created with update.php before
+# this was enabled. Enrolment is opt-in: 'user' gets oathauth-enable from the
+# extension, and no group is forced, so nobody can be locked out by deploying.
+wfLoadExtension( "OATHAuth" );
+$wgOATHRequiredForGroups = [];
+$wgOATHAuthWindowRadius = 4;
+
 # UserMerge Extension
 wfLoadExtension( "UserMerge" );
 $wgGroupPermissions['bureaucrat']['usermerge'] = true;
