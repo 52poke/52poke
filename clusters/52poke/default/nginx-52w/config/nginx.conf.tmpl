@@ -53,7 +53,7 @@ http {
         # Block externally hosted scripts (XSS/injection mitigation).
         # 'unsafe-inline'/'unsafe-eval' are required by MediaWiki and its gadgets;
         # they still do not permit scripts loaded from other origins.
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://media.52poke.com https://*.52poke.com; font-src 'self' data: https://media.52poke.com; media-src 'self' https://media.52poke.com; connect-src 'self' https://media.52poke.com; frame-src 'self'; child-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://media.52poke.com https://*.52poke.com https://licensebuttons.net; font-src 'self' data: https://media.52poke.com; media-src 'self' https://media.52poke.com; connect-src 'self' https://media.52poke.com; frame-src 'self'; child-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" always;
 {{ range (ds "block").ban_ua }}
         if ($http_user_agent = "{{.}}") {
             return 403;
