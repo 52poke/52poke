@@ -207,6 +207,7 @@ $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['writeapi'] = true;
 $wgGroupPermissions['*']['createtalk'] = false;
 $wgGroupPermissions['*']['createpage'] = false;
+$wgGroupPermissions['*']['createaccount'] = false;
 $wgGroupPermissions['sysop']['renameuser'] = true;
 $wgGroupPermissions['sysop']['deleterevision'] = true;
 $wgGroupPermissions['sysop']['upload_by_url'] = true;
