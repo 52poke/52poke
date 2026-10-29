@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       annotations:
-        rollout.52poke.com/config-revision: "2026-08-03-inazuma-csp2"
+        rollout.52poke.com/config-revision: "2026-08-03-inazuma-csp3"
       labels:
         app: nginx-52w
     spec:
