@@ -203,6 +203,11 @@ $wgNonincludableNamespaces[] = 102;
 $wgNonincludableNamespaces[] = 103;
 
 # Permissions
+# Treat blocked users as anonymous: they cannot log in, and the OAuth extension
+# refuses their authorisation/session/consumer requests because it gates on this
+# flag (SessionProvider, SpecialMWOAuth, ConsumerSubmitControl, Consumer), so a
+# blocked account cannot keep using OAuth clients via an existing session.
+$wgBlockDisablesLogin = true;
 $wgGroupPermissions['*']['edit'] = false;
 $wgGroupPermissions['*']['writeapi'] = true;
 $wgGroupPermissions['*']['createtalk'] = false;
