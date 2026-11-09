@@ -332,7 +332,7 @@ wfLoadSkin( "MonoBook" );
 wfLoadSkin( "Vector" );
 wfLoadSkin( 'MinervaNeue' );
 
-# restrict parse API to logged-in users only
+# Restrict parse API to logged-in users and the internal mwoffliner endpoint
 $wgHooks['ApiCheckCanExecute'][] = static function (
     $module,
     $user,
@@ -340,7 +340,8 @@ $wgHooks['ApiCheckCanExecute'][] = static function (
 ) {
     if (
         $module->getModuleName() === 'parse' &&
-        !$user->isNamed()
+        !$user->isNamed() &&
+        ( $_SERVER['HTTP_HOST'] ?? '' ) !== 'wiki-52poke-privileged'
     ) {
         $message = [
             'apierror-mustbeloggedin',
